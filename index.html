@@ -1,0 +1,1025 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Unfiltered — Reflection & Accountability</title>
+  <style>
+    :root{
+      /* SafeBAE palette */
+      --sb-light:#D1FEFF;
+      --sb-teal:#13848F;
+      --sb-mint:#15FFC8;
+      --sb-deep:#1D414E;
+
+      /* App tokens */
+      --bg: var(--sb-deep);
+      --text: var(--sb-light);
+      --muted: rgba(209,254,255,.78);
+      --border: rgba(209,254,255,.18);
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius:18px;
+      --accent: var(--sb-mint);
+      --danger: var(--sb-teal);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background:
+                  radial-gradient(1200px 800px at 20% 10%, rgba(21,255,200,.18), transparent 55%),
+                  radial-gradient(1000px 700px at 90% 20%, rgba(19,132,143,.22), transparent 60%),
+                  radial-gradient(900px 600px at 40% 100%, rgba(209,254,255,.10), transparent 55%),
+                  var(--bg);
+      color: var(--text);
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      padding: 28px 14px 60px;
+      transition: background 600ms ease;
+    }
+    .app{ width: min(540px, 100%); }
+    .topbar{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px; }
+    .brand { display:flex; align-items:center; gap:10px; }
+    .logo svg{ width:26px; height:36px; transform-origin: 50% 100%; animation: grow 7s ease-in-out infinite; }
+    @keyframes grow {
+      0%   { transform: scale(0.88) translateY(4px); opacity: .85; }
+      50%  { transform: scale(1.00) translateY(0px); opacity: 1; }
+      100% { transform: scale(0.92) translateY(2px); opacity: .92; }
+    } to { transform: rotate(360deg);} }
+    .brand .title{ font-weight: 900; font-size: 16px; }
+    .neon-underline{
+      position: relative;
+      display: inline-block;
+    }
+    .neon-underline::after{
+      content:"";
+      position:absolute;
+      left:0;
+      bottom:-3px;
+      width:100%;
+      height:3px;
+      background:#15FFC8;
+      box-shadow:0 0 6px #15FFC8, 0 0 12px #15FFC8;
+      border-radius:2px;
+    }
+    .brand .subtitle{ font-size:12px; color: var(--muted); margin-top:2px; }
+    .topActions{ display:flex; gap:10px; }
+    .btn{
+      appearance:none; border:none;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-weight: 800;
+      cursor:pointer;
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      border: 1px solid var(--border);
+      transition: transform .06s ease, background .15s ease;
+      text-align:left;
+      width:100%;
+    }
+    .btn:hover{ background: rgba(255,255,255,.09); }
+    .btn:active{ transform: translateY(1px); }
+    .btnSmall{ padding:10px 12px; border-radius: 999px; font-size: 12px; width:auto; }
+    .btnPrimary{
+      background: linear-gradient(135deg, rgba(21,255,200,.98), rgba(19,132,143,.85));
+      color:#041114; border: 1px solid rgba(209,254,255,.24);
+    }
+    .btnDanger{
+      background: rgba(19,132,143,.22);
+      border: 1px solid rgba(21,255,200,.30);
+      color: var(--sb-light);
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+    .h1{ font-size: 22px; margin:0 0 10px; font-weight: 900; line-height:1.2; }
+    .p{ margin:0 0 12px; color: var(--muted); line-height:1.45; }
+    .grid{ display:grid; gap:10px; margin-top: 12px;}
+    .note{
+      border-left: 3px solid rgba(21,255,200,.70);
+      background: rgba(21,255,200,.10);
+      padding: 10px 12px;
+      border-radius: 12px;
+      color: var(--sb-light);
+      font-size: 13px;
+      line-height:1.35;
+      margin: 10px 0 14px;
+    }
+    .footer{ margin-top:12px; display:flex; justify-content:space-between; gap:10px; font-size:12px; color: var(--muted);}
+    a.link{ color: var(--sb-mint); text-decoration:none; font-weight:800;}
+    a.link:hover{ text-decoration:underline;}
+    .btnBack{
+      width:auto;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      color: var(--muted);
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--border);
+      margin-bottom: 8px;
+    }
+    .btnBack:hover{ color: var(--text); background: rgba(255,255,255,.08); }
+    .mutedBox{
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px dashed rgba(255,255,255,.18);
+      color: var(--muted);
+      font-size: 12px;
+      line-height:1.35;
+    }
+
+    /* Modal */
+    .modalOverlay{
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(6px);
+      z-index: 9999;
+    }
+    .modal{
+      width: min(520px, 100%);
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+    .modalHeader{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .modalTitle{ font-weight: 950; font-size: 16px; }
+    .modalClose{
+      width: auto;
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+    }
+    .modalActions{ display:flex; gap:10px; margin-top: 14px; }
+    .modalActions .btn{ width:auto; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">
+          <svg viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg">
+            <!-- Stem -->
+            <line x1="50" y1="64" x2="50" y2="130" stroke="#15FFC8" stroke-width="6" stroke-linecap="round" />
+            <!-- Center -->
+            <circle cx="50" cy="50" r="14" fill="#15FFC8" />
+            <!-- Petals -->
+            <g fill="#D1FEFF">
+              <ellipse cx="50" cy="20" rx="10" ry="18"/>
+              <ellipse cx="50" cy="80" rx="10" ry="18"/>
+              <ellipse cx="20" cy="50" rx="18" ry="10"/>
+              <ellipse cx="80" cy="50" rx="18" ry="10"/>
+              <ellipse cx="30" cy="30" rx="12" ry="18" transform="rotate(-45 30 30)"/>
+              <ellipse cx="70" cy="30" rx="12" ry="18" transform="rotate(45 70 30)"/>
+              <ellipse cx="30" cy="70" rx="12" ry="18" transform="rotate(45 30 70)"/>
+              <ellipse cx="70" cy="70" rx="12" ry="18" transform="rotate(-45 70 70)"/>
+            </g>
+          </svg>
+        </div>
+        <div class="title"><span class="neon-underline">Unfiltered</span></div>
+        <div class="subtitle">Reflection & Accountability</div>
+      </div>
+      <div class="topActions">
+        <button class="btn btnSmall btnDanger" data-action="quickExit">Quick exit</button>
+        <button class="btn btnSmall" data-action="restart">Restart</button>
+      </div>
+    </div>
+
+    <div class="card" id="screen"></div>
+
+    <div class="footer">
+      <div>No Account. No Names. No Judgment. Just Unfiltered Answers.</div>
+      <div><a class="link" href="#" data-action="about">About</a></div>
+    </div>
+
+    <div style="text-align:center; margin-top:14px; font-size:12px; color: var(--muted);">
+      A Project of SafeBAE x REES
+    </div>
+  </div>
+  </div>
+
+<script>
+const state = { entry:null, scenario:null, emotion:null, path:null, screenId:"landing", showWhyModal: true, history:[] };
+const screen = document.getElementById("screen");
+
+function go(id){ if(state.screenId !== id) state.history.push(state.screenId); state.screenId=id; render(); }
+function goBack(){ if(state.history.length){ state.screenId=state.history.pop(); render(); } }
+function reset(){ state.entry=null; state.scenario=null; state.emotion=null; state.path=null; state.history=[]; go("landing"); }
+
+document.addEventListener("click", (e)=>{
+  const el = e.target.closest("[data-action]");
+  if(!el) return;
+  e.preventDefault();
+  const a = el.getAttribute("data-action");
+  actions[a]?.();
+});
+
+const actions = {
+  start: ()=>go("bringsYouHere"),
+  whyBtn: ()=>go("whyThisExists"),
+  pathMenu: ()=>go("pathMenu"),
+  about: ()=>go("about"),
+  restart: ()=>reset(),
+  quickExit: ()=>go("decoy"),
+  goBack: ()=>goBack(),
+};
+
+function backBtn(){ return state.history.length ? `<button class="btn btnBack" data-action="goBack">&#8592; Back</button>` : ""; }
+
+function card(h1, ps=[], note=null, content=""){
+  return `
+    <div class="h1">${h1}</div>
+    ${ps.map(p=>`<div class="p">${p}</div>`).join("")}
+    ${note?`<div class="note">${note}</div>`:""}
+    ${content}
+  `;
+}
+function btn(label, action, cls="btn"){ return `<button class="${cls}" data-action="${action}">${label}</button>`; }
+function grid(inner){ return `<div class="grid">${inner}</div>`; }
+
+function entryLabel(e){
+  return ({
+    crossed_boundary:"Worried I crossed a boundary",
+    they_mad:"They’re mad and I think I did something wrong",
+    not_sure_ok:"Not sure if what happened was okay",
+    made_uncomfortable:"Someone said I made them uncomfortable",
+    cant_explain:"I don’t know how to explain it",
+    learn_consent:"I want to understand consent better",
+    accidental_assault:"I think I accidentally sexually assaulted someone"
+  })[e] || "—";
+}
+function scenarioLabel(s){
+  return ({
+    freeze:"They froze or got quiet",
+    pulled_away:"They pulled away",
+    drinking:"We were drinking",
+    not_sure_wanted:"Not sure they wanted it",
+    upset_after:"They seemed upset afterward",
+    not_sure_what:"I’m still not sure what happened",
+    pressure:"I kept persuading or pressuring them",
+    age_power:"There was an age or power difference",
+    digital:"Something happened digitally (photos/messages)",
+    coercion:"I ignored a clear ‘no’",
+    relationship:"We were in a relationship and I assumed consent"
+  })[s] || "—";
+}
+
+function routeScenario(s){
+  state.scenario = s;
+
+  // Always show an explanation screen for every selection.
+  // (These screens then route into the shared emotion → next steps flow.)
+
+  // Core behavioral-signal scenarios
+  if(s === "freeze") return go("A_freeze_whatItMeans");
+  if(s === "pulled_away") return go("C_pulledAway_signal");
+  if(s === "drinking") return go("B_drinking_basics");
+
+  // Wide-branch scenarios
+  if(s === "pressure") return go("D_pressure");
+  if(s === "age_power") return go("E_age_power");
+  if(s === "digital") return go("F_digital");
+  if(s === "coercion") return go("G_coercion");
+  if(s === "relationship") return go("H_relationship");
+
+  // Ambiguity / aftermath scenarios
+  if(s === "not_sure_wanted") return go("I_not_sure_wanted");
+  if(s === "upset_after") return go("J_upset_after");
+  if(s === "not_sure_what") return go("K_not_sure_what");
+
+  // If we somehow reach an unknown key, default to emotion (safe fallback).
+  return go("emotion");
+}
+
+function render(){
+  // Simple progress indicator map
+  const progressMap = {
+    landing: 0,
+    bringsYouHere: 1,
+    entryDeescalate: 2,
+    topScenario: 2,
+    A_freeze_whatItMeans: 3,
+    A_freeze_impact: 4,
+    B_drinking_basics: 3,
+    B_drinking_rule: 4,
+    C_pulledAway_signal: 3,
+    C_pulledAway_script: 4,
+    D_pressure: 3,
+    E_age_power: 3,
+    F_digital: 3,
+    G_coercion: 3,
+    H_relationship: 3,
+    I_not_sure_wanted: 3,
+    J_upset_after: 3,
+    K_not_sure_what: 3,
+    emotion: 4,
+    emotionMessage: 4,
+    nextSteps: 5,
+    learn: 6,
+    prevent: 6,
+    repair: 6,
+    support: 6,
+    closing: 7
+  };
+  const totalSteps = 7;
+  function progressBar(step){
+    if(!step) return '';
+    const percent = Math.round((step/totalSteps)*100);
+    return `<div style="margin-bottom:12px;">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Step ${step} of ${totalSteps}</div>
+      <div style="height:6px;background:rgba(255,255,255,.08);border-radius:6px;overflow:hidden;">
+        <div style="height:100%;width:${percent}%;background:var(--accent);transition:width .3s ease;"></div>
+      </div>
+    </div>`;
+  }
+  const id = state.screenId;
+
+  // Make background subtly lighten as users move forward (spiral → calm)
+  const stepNow = progressMap[id] || 0;
+  const t = Math.max(0, Math.min(1, stepNow / totalSteps));
+  // Interpolate from deep background to lighter teal as progress increases
+  // Start: #1D414E (29,65,78)  → End: #13848F (19,132,143)
+  const r = Math.round(29 + (19-29)*t);
+  const g = Math.round(65 + (132-65)*t);
+  const b = Math.round(78 + (143-78)*t);
+  const base = `rgb(${r},${g},${b})`;
+  // Keep your existing SafeBAE gradient vibe, but brighten the base over time
+  const glow1 = 0.18 + 0.10*t; // mint glow increases
+  const glow2 = 0.22 + 0.06*t; // teal glow increases
+  const glow3 = 0.10 + 0.06*t; // light glow increases
+  document.body.style.background = `
+    radial-gradient(1200px 800px at 20% 10%, rgba(21,255,200,${glow1}), transparent 55%),
+    radial-gradient(1000px 700px at 90% 20%, rgba(19,132,143,${glow2}), transparent 60%),
+    radial-gradient(900px 600px at 40% 100%, rgba(209,254,255,${glow3}), transparent 55%),
+    ${base}
+  `;
+
+  if(id==="landing"){
+    const spiral = `
+      <div style="display:flex; align-items:flex-start; gap:20px; margin-bottom:18px;">
+        <div class="h1" style="opacity:.85; line-height:1.3; flex:1;">
+          <div style="position:relative;">
+            <div style="font-size:20px; filter:blur(0.5px); opacity:.9;">Did I harm someone?</div>
+            <div style="font-size:20px; transform:rotate(-2deg); opacity:.8;">Did I cross a boundary?</div>
+            <div style="font-size:20px; transform:rotate(1.5deg); opacity:.75;">Was that consent?</div>
+            <div style="font-size:20px; transform:rotate(-1deg); opacity:.7;">Am I a bad person?</div>
+            <div style="font-size:20px; transform:rotate(2deg); opacity:.65;">Am I a rapist?</div>
+          </div>
+        </div>
+        <div style="width:120px; opacity:.6;">
+          <svg viewBox="0 0 160 160" width="100%" height="100%" fill="none" stroke="#15FFC8" stroke-linecap="round" stroke-linejoin="round" opacity="0.85">
+            <!-- Dense chaotic scribble cluster -->
+            <g stroke-width="1.6">
+              <path d="M80 20 C140 10,150 70,100 90 C50 110,10 60,60 40 C110 20,150 120,80 130 C10 140,20 20,120 50 C150 70,120 160,60 150 C0 140,40 10,140 60" />
+              <path d="M70 30 C130 50,120 110,70 90 C20 70,90 20,130 80 C170 140,40 150,50 80 C60 10,140 30,110 120" />
+              <path d="M60 40 C120 20,160 80,90 100 C20 120,10 60,80 50 C150 40,130 150,50 130" />
+              <path d="M90 35 C140 60,100 130,60 95 C20 60,110 30,140 100 C160 150,30 120,70 60" />
+              <path d="M50 50 C120 40,150 90,100 110 C50 130,20 80,80 60 C140 40,120 150,60 140" />
+            </g>
+            <g stroke-width="1.2" opacity="0.7">
+              <path d="M85 25 C120 30,135 75,95 95 C55 115,30 70,70 55 C110 40,130 125,75 120" />
+              <path d="M75 45 C125 55,115 115,70 100 C25 85,95 35,125 105" />
+              <path d="M65 60 C110 65,100 120,60 110 C20 100,85 50,110 115" />
+            </g>
+          </svg>
+        </div>
+      </div>
+      <div class="p"></div>
+      </div>
+    `;
+
+    const mainCard = card(
+      "Not sure if you crossed a line?",
+      [
+        "This is a <b>private</b>, non-punitive reflection tool. You can leave anytime.",
+        "It won’t decide labels. It helps you slow down, learn, and choose safer next steps."
+      ],
+      "<b>Privacy:</b> This prototype collects no names, no account info, and stores nothing.",
+      grid(
+        btn("Start","start","btn btnPrimary") +
+        btn("Why this exists","whyBtn","btn") +
+        btn("Jump to pathways menu","pathMenu","btn")
+      )
+    );
+
+    screen.innerHTML = progressBar(progressMap[id]) + spiral + mainCard;
+    return;
+  }
+
+  if(id==="whyThisExists"){
+    screen.innerHTML = backBtn() + card(
+      "Why this exists",
+      [
+        "This tool exists because many people have questions about moments that didn’t feel clear — and want to do better, but aren’t sure where to start.",
+        "Instead of spiraling alone or searching random forums, you can slow down here and think it through step by step.",
+        "This space is built for reflection, accountability, and growth — not judgment."
+      ],
+      null,
+      grid(btn("Continue","toBrings","btn btnPrimary"))
+    );
+    actions.toBrings=()=>go("bringsYouHere");
+    return;
+  }
+
+  if(id==="bringsYouHere"){
+    screen.innerHTML = backBtn() + card(
+      "What brings you here?",
+      ["It’s okay to not have a clear answer yet."],
+      null,
+      grid(
+        btn("I’m worried I might have crossed a boundary","e1") +
+        btn("The person I was with is mad and I’m worried I did something wrong","e2") +
+        btn("I’m not sure if what happened was okay","e3") +
+        btn("Someone said I made them uncomfortable","e4") +
+        btn("I don’t know how to explain it","e5") +
+        btn("I just want to understand consent better","e6") +
+        btn("I think I accidentally sexually assaulted someone","e7")
+      )
+    );
+    actions.e1=()=>{state.entry="crossed_boundary"; go("topScenario");};
+    actions.e2=()=>{state.entry="they_mad"; go("topScenario");};
+    actions.e3=()=>{state.entry="not_sure_ok"; go("topScenario");};
+    actions.e4=()=>{state.entry="made_uncomfortable"; go("topScenario");};
+    actions.e5=()=>{state.entry="cant_explain"; go("topScenario");};
+    actions.e6=()=>{state.entry="learn_consent"; go("topScenario");};
+    actions.e7=()=>{state.entry="accidental_assault"; go("entryDeescalate");};
+    return;
+  }
+
+  if(id==="entryDeescalate"){
+    screen.innerHTML = backBtn() + card(
+      "Let’s slow this down.",
+      [
+        "It sounds like you’re carrying something heavy.",
+        "This space isn’t here to judge or label you. It’s here to help you understand what happened and what you can do next.",
+        "We’ll focus on behaviors, impact, and safer next steps."
+      ],
+      null,
+      grid(
+        btn("Continue","continue","btn btnPrimary") +
+        btn("Go back","back")
+      )
+    );
+    actions.continue=()=>go("topScenario");
+    actions.back=()=>go("bringsYouHere");
+    return;
+  }
+
+  if(id==="topScenario"){
+    screen.innerHTML = backBtn() + card(
+      "Which feels closest to what happened?",
+      ["Pick one. No details needed."],
+      null,
+      grid(
+        btn("They froze or got quiet","s1") +
+        btn("They pulled away","s2") +
+        btn("We were drinking","s3") +
+        btn("I’m not sure they really wanted it","s4") +
+        btn("They seemed upset or distant afterwards","s5") +
+        btn("I kept persuading or pressuring them","s7") +
+        btn("There was an age or power difference","s8") +
+        btn("Something happened digitally (photos/messages)","s9") +
+        btn("I ignored a clear ‘no’","s10") +
+        btn("We were in a relationship and I assumed consent","s11") +
+        btn("I’m still not sure what happened","s6")
+      )
+    );
+    actions.s1=()=>routeScenario("freeze");
+    actions.s2=()=>routeScenario("pulled_away");
+    actions.s3=()=>routeScenario("drinking");
+    actions.s4=()=>routeScenario("not_sure_wanted");
+    actions.s5=()=>routeScenario("upset_after");
+    actions.s6=()=>routeScenario("not_sure_what");
+    actions.s7=()=>routeScenario("pressure");
+    actions.s8=()=>routeScenario("age_power");
+    actions.s9=()=>routeScenario("digital");
+    actions.s10=()=>routeScenario("coercion");
+    actions.s11=()=>routeScenario("relationship");
+    return;
+  }
+
+  // ===== Existing Path A (Freeze) =====
+  if(id==="A_freeze_whatItMeans"){
+    screen.innerHTML = backBtn() + card(
+      "When someone freezes…",
+      [
+        "Sometimes people go quiet, stiff, or unresponsive when they feel overwhelmed or unsafe. That can be a <b>freeze response</b>.",
+        "Freezing does <b>not</b> mean “yes.” If you notice freezing, the safest move is to <b>pause and check in</b>."
+      ],
+      `<details style="margin-top:4px;">
+        <summary style="cursor:pointer; font-weight:900; color: var(--sb-light);">Learn More About Why This Happens</summary>
+        <div style="margin-top:8px; color: var(--muted); line-height:1.45;">
+          When people sense threat or overwhelm, the nervous system can shift into automatic survival states (often described as <b>fight</b>, <b>flight</b>, or <b>freeze</b>). Freeze can look like going quiet, becoming still, or feeling “stuck.” It can happen even when someone wants to speak up — it’s not always a conscious choice.
+          <br><br>
+          Some researchers also describe a more intense form of freezing (sometimes called <b>tonic immobility</b>) where the body becomes temporarily unable to move or respond. The key takeaway: if you notice freezing, it’s a signal to <b>stop</b>, <b>check in</b>, and prioritize safety.
+        </div>
+      </details>`,
+      grid(btn("Continue","A1","btn btnPrimary"))
+    );
+    actions.A1=()=>go("A_freeze_impact");
+    return;
+  }
+  if(id==="A_freeze_impact"){
+    screen.innerHTML = backBtn() + card(
+      "Impact matters — even without intent.",
+      [
+        "If someone froze and things continued, they may have felt unsafe, pressured, or overwhelmed.",
+        "<b>Even if you didn’t intend harm</b>, continuing when someone freezes can leave them feeling violated.",
+        "What matters now is what you do next: slow down, take responsibility, and learn skills that prevent harm."
+      ],
+      null,
+      grid(btn("Continue","toEmotion","btn btnPrimary"))
+    );
+    actions.toEmotion=()=>go("emotion");
+    return;
+  }
+
+  // ===== Existing Path B (Drinking) =====
+  if(id==="B_drinking_basics"){
+    screen.innerHTML = backBtn() + card(
+      "Alcohol changes consent.",
+      [
+        "Consent needs to be clear and freely given. If someone is <b>significantly impaired</b>, they can’t make informed choices.",
+        "Alcohol is also a risk factor for sexual harm — so “pause and check in” matters <b>more</b>, not less."
+      ],
+      `<details style="margin-top:4px;">
+        <summary style="cursor:pointer; font-weight:900; color: var(--sb-light);">Learn More About Why This Happens</summary>
+        <div style="margin-top:8px; color: var(--muted); line-height:1.45;">
+          Alcohol can reduce judgment, make it harder to notice discomfort cues, and increase impulsivity. It can also affect a person’s ability to freely and clearly communicate what they want.
+          <br><br>
+          Because intoxication blurs signals, the safest practice is to slow down, check in clearly, and treat uncertainty as a stop sign.
+        </div>
+      </details>`,
+      grid(btn("Continue","B1","btn btnPrimary"))
+    );
+    actions.B1=()=>go("B_drinking_rule");
+    return;
+  }
+  if(id==="B_drinking_rule"){
+    screen.innerHTML = backBtn() + card(
+      "A simple safety rule",
+      [
+        "If you’re asking yourself “were they too drunk?” treat that as a <b>stop sign</b>.",
+        "Choose the safer option: stop, make sure everyone gets home safely, and revisit another time when everyone is sober."
+      ],
+      null,
+      grid(btn("Continue","toEmotion","btn btnPrimary"))
+    );
+    actions.toEmotion=()=>go("emotion");
+    return;
+  }
+
+  // ===== Existing Path C (Pulled away) =====
+  if(id==="C_pulledAway_signal"){
+    screen.innerHTML = backBtn() + card(
+      "Pulling away is information.",
+      [
+        "Consent can be withdrawn at any time.",
+        "Nonverbal signals — like pulling away, going silent, or freezing — are reasons to <b>stop</b> and <b>check in</b>, not to keep going."
+      ],
+      `<details style="margin-top:4px;">
+        <summary style="cursor:pointer; font-weight:900; color: var(--sb-light);">Learn More About Why This Happens</summary>
+        <div style="margin-top:8px; color: var(--muted); line-height:1.45;">
+          People don’t always say “no” out loud. Sometimes they pull away, go quiet, tense up, or disengage because they feel unsure, overwhelmed, or unsafe.
+          <br><br>
+          The practical rule is simple: if you notice withdrawal, pause immediately and ask a clear check-in — then respect the answer (including silence or hesitation).
+        </div>
+      </details>`,
+      grid(btn("Continue","C1","btn btnPrimary"))
+    );
+    actions.C1=()=>go("C_pulledAway_script");
+    return;
+  }
+  if(id==="C_pulledAway_script"){
+    screen.innerHTML = backBtn() + card(
+      "What to do in the moment",
+      ["Pause. Take your hands/body back. Try a simple check-in:"],
+      "<b>Script:</b> “Hey — are you okay? Want to stop? We can stop anytime.”<br><br>Then wait. If they hesitate, go quiet, or pull away again: <b>stop</b>.",
+      grid(btn("Continue","toEmotion","btn btnPrimary"))
+    );
+    actions.toEmotion=()=>go("emotion");
+    return;
+  }
+
+  // ===== New Branch D =====
+  if(id==="D_pressure"){
+    screen.innerHTML = backBtn() + card(
+      "Pressure and persuasion",
+      [
+        "Repeatedly asking, convincing, bargaining, or emotionally pressuring someone can undermine consent.",
+        "If someone agreed only after being worn down — or to avoid conflict — they may not have felt free to choose.",
+        "A good rule: if you have to persuade, it’s not a yes. The safest move is to stop and give space."
+      ],
+      `<details style="margin-top:4px;">
+        <summary style="cursor:pointer; font-weight:900; color: var(--sb-light);">Learn More About Why This Happens</summary>
+        <div style="margin-top:8px; color: var(--muted); line-height:1.45;">
+          Consent depends on freedom to choose. Pressure changes the situation by making “yes” feel like the easiest way to end discomfort, avoid anger, or keep the relationship stable.
+          <br><br>
+          Even when someone says yes, if it came after repeated persuasion, guilt-tripping, or bargaining, they may have felt they couldn’t say no safely. That’s why “one ask” and accepting no immediately is a safer norm.
+        </div>
+      </details>`,
+      grid(btn("Continue","toEmotion","btn btnPrimary"))
+    );
+    actions.toEmotion=()=>go("emotion");
+    return;
+  }
+
+  // ===== New Branch E =====
+  if(id==="E_age_power"){
+    screen.innerHTML = backBtn() + card(
+      "Age or power differences",
+      [
+        "Differences in age, status, popularity, or authority can affect someone’s ability to freely consent.",
+        "When one person has more power, it’s easier for the other person to feel pressured to go along.",
+        "When in doubt, step back. Choosing distance can be a form of accountability and prevention."
+      ],
+      `<details style="margin-top:4px;">
+        <summary style="cursor:pointer; font-weight:900; color: var(--sb-light);">Learn More About Why This Happens</summary>
+        <div style="margin-top:8px; color: var(--muted); line-height:1.45;">
+          Power differences — including age gaps, social status, experience, authority, or emotional leverage — can shift how safe someone feels saying no. Even without explicit threats, imbalance can create subtle pressure.
+          <br><br>
+          Research on coercion and consent shows that people are less likely to refuse when they fear social consequences, disappointment, or losing connection. That’s why ethical responsibility increases when there is a power gap: the person with more power must take extra care to ensure consent is truly voluntary.
+        </div>
+      </details>`,
+      grid(btn("Continue","toEmotion","btn btnPrimary"))
+    );
+    actions.toEmotion=()=>go("emotion");
+    return;
+  }
+
+  // ===== New Branch F (Digital) =====
+  if(id==="F_digital"){
+    screen.innerHTML = backBtn() + card(
+      "Digital consent matters too",
+      [
+        "Sharing photos, screenshots, or private messages without permission can cause serious harm.",
+        "Pressuring someone to send images or respond sexually is also a consent issue.",
+        "Digital harm is still harm — even if no one was physically present."
+      ],
+      `<details style="margin-top:4px;">
+        <summary style="cursor:pointer; font-weight:900; color: var(--sb-light);">
+          Learn More About Why This Matters
+        </summary>
+        <div style="margin-top:8px; color: var(--muted); line-height:1.45;">
+          Digital interactions can feel casual or fast-moving, but consent still applies.
+          Screenshots, forwarding messages, or saving intimate content without permission
+          can violate trust and privacy.
+          <br><br>
+          Prevention rule: never assume digital access equals digital permission.
+        </div>
+      </details>`,
+      grid(btn("Continue","toEmotion","btn btnPrimary"))
+    );
+    actions.toEmotion = ()=>go("emotion");
+    return;
+  }
+
+  // ===== New Branch G (Coercion) =====
+  if(id==="G_coercion"){
+    screen.innerHTML = backBtn() + card(
+      "Ignoring a clear ‘no’",
+      [
+        "If someone said no, stop means stop.",
+        "Continuing after a clear no is crossing a boundary — even if it was brief, even if you felt confused, even if you were ‘caught up.’",
+        "Accountability here means acknowledging impact, stopping immediately in the future, and taking active steps to change behavior."
+      ],
+      `<details style="margin-top:4px;">
+        <summary style="cursor:pointer; font-weight:900; color: var(--sb-light);">Learn More About Why This Happens</summary>
+        <div style="margin-top:8px; color: var(--muted); line-height:1.45;">
+          People sometimes override “no” because of entitlement, panic, arousal, peer norms, or the belief that they can change someone’s mind.
+          <br><br>
+          The prevention takeaway is direct: “no” ends the moment. If you struggle with stopping, that’s a sign you need stronger skills, boundaries, and accountability supports — not more persuasion.
+        </div>
+      </details>`,
+      grid(btn("Continue","toEmotion","btn btnPrimary"))
+    );
+    actions.toEmotion=()=>go("emotion");
+    return;
+  }
+
+  // ===== New Branch G =====
+  if(id==="G_coercion"){
+    screen.innerHTML = backBtn() + card(
+      "Ignoring a clear ‘no’",
+      [
+        "If someone said no, stop means stop.",
+        "Continuing after a clear no is crossing a boundary — even if it was brief, even if you felt confused, even if you were ‘caught up.’",
+        "Accountability here means acknowledging impact, stopping immediately in the future, and taking active steps to change behavior."
+      ],
+      null,
+      grid(btn("Continue","toEmotion","btn btnPrimary"))
+    );
+    actions.toEmotion=()=>go("emotion");
+    return;
+  }
+
+  // ===== New Branch H =====
+  if(id==="H_relationship"){
+    screen.innerHTML = backBtn() + card(
+      "Assuming consent in a relationship",
+      [
+        "Being in a relationship does not automatically mean consent.",
+        "Consent is required every time — and it can change moment to moment.",
+        "If you assumed yes without checking in, the prevention move is to build a new habit: ask clearly, slow down, and respect boundaries right away."
+      ],
+      null,
+      grid(btn("Continue","toEmotion","btn btnPrimary"))
+    );
+    actions.toEmotion=()=>go("emotion");
+    return;
+  }
+
+  // ===== New Branch I =====
+  if(id==="I_not_sure_wanted"){
+    screen.innerHTML = backBtn() + card(
+      "Not sure they wanted it",
+      [
+        "If you’re not sure they wanted it, treat that uncertainty seriously.",
+        "Consent usually looks like active participation — not silence, stiffness, or doing it just to ‘get it over with.’",
+        "When in doubt: pause, ask, and be ready to stop without argument."
+      ],
+      null,
+      grid(btn("Continue","toEmotion","btn btnPrimary"))
+    );
+    actions.toEmotion=()=>go("emotion");
+    return;
+  }
+
+  // ===== New Branch J =====
+  if(id==="J_upset_after"){
+    screen.innerHTML = backBtn() + card(
+      "They seemed upset afterward",
+      [
+        "If someone became distant, upset, or quiet afterward, that can be a sign they didn’t feel okay about what happened.",
+        "You don’t need them to ‘prove’ anything for their feelings to matter.",
+        "Accountability here can look like listening, apologizing without pressure, and respecting whatever boundaries they set."
+      ],
+      null,
+      grid(btn("Continue","toEmotion","btn btnPrimary"))
+    );
+    actions.toEmotion=()=>go("emotion");
+    return;
+  }
+
+  // ===== New Branch K =====
+  if(id==="K_not_sure_what"){
+    screen.innerHTML = backBtn() + card(
+      "Still not sure what happened",
+      [
+        "Confusion is common — especially when emotions, alcohol, or pressure were involved.",
+        "A helpful question: did you check in clearly and get an enthusiastic yes? If not, the safest assumption is that you need stronger consent practices.",
+        "You can’t redo the past, but you can choose accountability now: learn, change habits, and avoid repeating harm."
+      ],
+      null,
+      grid(btn("Continue","toEmotion","btn btnPrimary"))
+    );
+    actions.toEmotion=()=>go("emotion");
+    return;
+  }
+
+  // ===== Shared emotion + next steps =====
+  if(id==="emotion"){
+    screen.innerHTML = backBtn() + card(
+      "What are you feeling right now?",
+      ["Pick the closest one."],
+      null,
+      grid(
+        btn("Guilt","guilt") +
+        btn("Defensive","defensive") +
+        btn("Confused / unsure","confused") +
+        btn("Ashamed","ashamed") +
+        btn("Anxious / panicking","anxious") +
+        btn("Angry","angry") +
+        btn("Numb","numb")
+      )
+    );
+    actions.guilt=()=>{state.emotion="guilt"; go("emotionMessage");};
+    actions.defensive=()=>{state.emotion="defensive"; go("emotionMessage");};
+    actions.confused=()=>{state.emotion="confused"; go("emotionMessage");};
+    actions.ashamed=()=>{state.emotion="ashamed"; go("emotionMessage");};
+    actions.anxious=()=>{state.emotion="anxious"; go("emotionMessage");};
+    actions.angry=()=>{state.emotion="angry"; go("emotionMessage");};
+    actions.numb=()=>{state.emotion="numb"; go("emotionMessage");};
+    return;
+  }
+
+  if(id==="emotionMessage"){
+    const msg = state.emotion==="guilt"
+      ? "Feeling guilty can mean you care about impact. You don’t have to spiral to take accountability."
+      : (state.emotion==="defensive"
+        ? "Feeling defensive is common when you’re scared of being seen as “a bad person.” Let’s focus on behaviors and choices, not labels."
+        : (state.emotion==="confused"
+          ? "Confusion is normal. Consent cues can be subtle. We’ll keep this simple and concrete."
+          : (state.emotion==="ashamed"
+            ? "Shame can make people shut down or lash out. The goal here isn’t to destroy yourself — it’s to face impact honestly and choose safer behavior next time."
+            : (state.emotion==="anxious"
+              ? "If you’re panicking, take a breath. You don’t have to solve everything right now. Let’s focus on a few steady next steps."
+              : (state.emotion==="angry"
+                ? "Anger can be a defense when something feels threatening. Before you decide what you think, pause and focus on what the other person may have experienced."
+                : "Numbness can be your brain protecting you. You can still choose accountability and safer habits, even if you don’t feel clear emotions yet.")))))
+    screen.innerHTML = backBtn() + card(
+      "Okay.",
+      [msg],
+      null,
+      grid(btn("Continue","nextSteps","btn btnPrimary"))
+    );
+    actions.nextSteps=()=>go("nextSteps");
+    return;
+  }
+
+  if(id==="nextSteps"){
+    screen.innerHTML = backBtn() + card(
+      "What do you want to do next?",
+      ["Choose one to start. You can come back and try others."],
+      null,
+      grid(
+        btn("Learn (quick basics)","learn") +
+        btn("Prevent it from happening again (skills)","prevent") +
+        btn("Repair (if appropriate)","repair") +
+        btn("Talk to someone / get support","support") +
+        btn("Finish for now","closing")
+      ) + `<div class="mutedBox"><b>Reminder:</b> This is not legal advice. It doesn’t determine guilt or labels.</div>`
+    );
+    actions.learn=()=>go("learn");
+    actions.prevent=()=>go("prevent");
+    actions.repair=()=>go("repair");
+    actions.support=()=>go("support");
+    actions.closing=()=>go("closing");
+    return;
+  }
+
+  if(id==="learn"){
+    screen.innerHTML = card(
+      "Learn (quick basics)",
+      [
+        "<b>Consent is ongoing.</b> It can change at any time.",
+        "<b>Silence isn’t consent.</b> If someone freezes, goes quiet, or pulls away: pause and check in.",
+        "<b>When unsure, stop.</b> The safest default is to slow down, ask, and respect boundaries."
+      ],
+      null,
+      grid(btn("Back","nextSteps") + btn("Finish","closing","btn btnPrimary"))
+    );
+    actions.nextSteps=()=>go("nextSteps");
+    actions.closing=()=>go("closing");
+    return;
+  }
+
+  if(id==="prevent"){
+    screen.innerHTML = card(
+      "Prevent it from happening again",
+      [
+        "1) If you feel uncertainty: <b>pause</b>.",
+        "2) Ask: “Are you okay? Want to stop?”",
+        "3) If they freeze/go quiet/pull away: <b>stop</b>.",
+        "4) Treat consent as ongoing — not a one-time question."
+      ],
+      null,
+      grid(btn("Back","nextSteps") + btn("Finish","closing","btn btnPrimary"))
+    );
+    actions.nextSteps=()=>go("nextSteps");
+    actions.closing=()=>go("closing");
+    return;
+  }
+
+  if(id==="repair"){
+    screen.innerHTML = card(
+      "Repair (if appropriate)",
+      [
+        "Accountability doesn’t mean getting forgiven. It means taking responsibility and respecting boundaries.",
+        "If you reach out, don’t ask them to comfort you. Keep it short, respectful, and allow space."
+      ],
+      "<b>Possible script:</b> “I’ve been thinking about what happened. I’m sorry I didn’t pause and check in. You didn’t deserve that. I’ll respect whatever space you want.”",
+      grid(btn("Back","nextSteps") + btn("Finish","closing","btn btnPrimary"))
+    );
+    actions.nextSteps=()=>go("nextSteps");
+    actions.closing=()=>go("closing");
+    return;
+  }
+
+  if(id==="support"){
+    screen.innerHTML = card(
+      "Support options",
+      [
+        "If you want structured accountability learning, consider SafeBAE’s accountability training.",
+        "If you’re overwhelmed or unsafe, reaching out for support can help."
+      ],
+      null,
+      `<div class="grid">
+        <a class="btn" href="https://safebae.org/360-schools/accountability-training/" target="_blank" rel="noopener">SafeBAE Accountability Training (external)</a>
+        <a class="btn" href="https://rainn.org/" target="_blank" rel="noopener">RAINN (external)</a>
+        <a class="btn" href="https://988lifeline.org/" target="_blank" rel="noopener">988 Lifeline (external)</a>
+        <a class="btn" href="https://www.crisistextline.org/" target="_blank" rel="noopener">Crisis Text Line (external)</a>
+      </div>` +
+      grid(btn("Back","nextSteps") + btn("Finish","closing","btn btnPrimary"))
+    );
+    actions.nextSteps=()=>go("nextSteps");
+    actions.closing=()=>go("closing");
+    return;
+  }
+
+  if(id==="closing"){
+    screen.innerHTML = card(
+      "You paused. That matters.",
+      [
+        "Taking a minute to reflect reduces the chance of harm happening again.",
+        "If you’re willing to learn and change, that’s important.",
+        "You can restart anytime."
+      ],
+      null,
+      grid(btn("Restart","restart","btn btnPrimary") + btn("Pathways menu","pathMenu"))
+    );
+    actions.restart=()=>reset();
+    actions.pathMenu=()=>go("pathMenu");
+    return;
+  }
+
+  if(id==="pathMenu"){
+    screen.innerHTML = backBtn() + card(
+      "Prototype pathways menu",
+      ["Jump directly into a pathway (for demo)."],
+      null,
+      grid(
+        btn("Freeze","jumpFreeze","btn btnPrimary") +
+        btn("Pulled away","jumpPull") +
+        btn("Drinking","jumpDrink") +
+        btn("Pressure","jumpPressure") +
+        btn("Age/power","jumpAgePower") +
+        btn("Digital","jumpDigital") +
+        btn("Ignored no","jumpCoercion") +
+        btn("Relationship assumed consent","jumpRelationship") +
+        btn("Not sure they wanted it","jumpWanted") +
+        btn("Upset afterward","jumpUpset") +
+        btn("Still not sure","jumpNotSure") +
+        btn("Back to start","landing")
+      )
+    );
+    actions.jumpFreeze=()=>{go("A_freeze_whatItMeans");};
+    actions.jumpPull=()=>{go("C_pulledAway_signal");};
+    actions.jumpDrink=()=>{go("B_drinking_basics");};
+    actions.jumpPressure=()=>{go("D_pressure");};
+    actions.jumpAgePower=()=>{go("E_age_power");};
+    actions.jumpDigital=()=>{go("F_digital");};
+    actions.jumpCoercion=()=>{go("G_coercion");};
+    actions.jumpRelationship=()=>{go("H_relationship");};
+    actions.jumpWanted=()=>{go("I_not_sure_wanted");};
+    actions.jumpUpset=()=>{go("J_upset_after");};
+    actions.jumpNotSure=()=>{go("K_not_sure_what");};
+    actions.landing=()=>go("landing");
+    return;
+  }
+
+  if(id==="about"){
+    screen.innerHTML = backBtn() + card(
+      "About this prototype",
+      [
+        "This is a prototype of a private accountability and reflection tool. It is designed for moments of uncertainty — when someone is questioning whether they crossed a boundary or harmed someone.",
+        "Rather than labeling or judging, the tool guides users through structured reflection on the situation and their emotional responses. It helps people pause, examine specific behaviors, and understand how factors such as consent, pressure, alcohol, and power dynamics can shape impact.",
+        "The tool is non-punitive and educational. It does not collect personal information, assign labels, or make legal determinations. Its purpose is to reduce harm by increasing awareness, strengthening accountability, and building practical prevention skills that support lasting behavior change.",
+        "This version demonstrates how scenario-based pathways and emotional check-ins work together to guide safer choices moving forward."
+
+      ],
+      null,
+      grid(btn("Back","landing","btn btnPrimary"))
+    );
+    actions.landing=()=>go("landing");
+    return;
+  }
+
+  if(id==="decoy"){
+    screen.innerHTML = backBtn() + card(
+      "Weekly Study Planner",
+      [
+        "Mon: Math • Tue: English • Wed: Science • Thu: History • Fri: Catch-up",
+        "Tip: Break big tasks into 15-minute blocks."
+      ],
+      null,
+      grid(btn("Return to prototype","landing","btn btnPrimary"))
+    );
+    actions.landing=()=>go("landing");
+    return;
+  }
+}
+
+render();
+</script>
+</body>
+</html>
