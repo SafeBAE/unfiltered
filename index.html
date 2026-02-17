@@ -244,7 +244,7 @@ const actions = {
   pathMenu: ()=>go("pathMenu"),
   about: ()=>go("about"),
   restart: ()=>reset(),
-  quickExit: ()=> window.location.replace("https://www.google.com/search?q="),
+  quickExit: ()=>go("decoy"),
   goBack: ()=>goBack(),
 };
 
@@ -465,7 +465,7 @@ function render(){
     actions.e3=()=>{state.entry="not_sure_ok"; go("topScenario");};
     actions.e4=()=>{state.entry="made_uncomfortable"; go("topScenario");};
     actions.e5=()=>{state.entry="cant_explain"; go("topScenario");};
-    actions.e6=()=>{state.entry="learn_consent"; go("topScenario");};
+    actions.e6=()=>{state.entry="learn_consent"; go("consentEdu");};
     actions.e7=()=>{state.entry="accidental_assault"; go("entryDeescalate");};
     return;
   }
@@ -989,6 +989,28 @@ function render(){
     actions.jumpUpset=()=>{go("J_upset_after");};
     actions.jumpNotSure=()=>{go("K_not_sure_what");};
     actions.landing=()=>go("landing");
+    return;
+  }
+  if(id==="consentEdu"){
+    screen.innerHTML = backBtn() + card(
+      "Understanding Consent",
+      [
+        "<b>Consent is ongoing.</b> It must be clear, voluntary, and can change at any time.",
+        "<b>Silence isn’t consent.</b> If someone freezes, goes quiet, or pulls away — pause and check in.",
+        "<b>Consent requires capacity.</b> Someone who is significantly impaired by alcohol or pressure may not be able to freely agree.",
+        "<b>Relationships don’t equal consent.</b> Consent is required every time."
+      ],
+      `<div class="note">
+        Healthy consent includes active participation, mutual enthusiasm, and the ability to say no without pressure.
+      </div>`,
+      grid(
+        btn("Continue","emotion","btn btnPrimary") +
+        btn("Return to start","landing")
+      )
+    );
+
+    actions.emotion = ()=>go("emotion");
+    actions.landing = ()=>go("landing");
     return;
   }
 
