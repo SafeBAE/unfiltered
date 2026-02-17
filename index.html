@@ -139,6 +139,13 @@
       line-height:1.35;
     }
 
+
+    /* Button content (icon + label) */
+    .btnContent{ display:flex; align-items:center; gap:10px; }
+    .btnIcon{ width:22px; text-align:center; font-size:18px; line-height:1; opacity:.95; }
+    .btnLabel{ flex:1; }
+
+
     /* Modal */
     .modalOverlay{
       position: fixed;
@@ -259,6 +266,14 @@ function card(h1, ps=[], note=null, content=""){
   `;
 }
 function btn(label, action, cls="btn"){ return `<button class="${cls}" data-action="${action}">${label}</button>`; }
+function btnIcon(label, action, icon, cls="btn"){
+  return `<button class="${cls}" data-action="${action}">
+    <span class="btnContent">
+      <span class="btnIcon" aria-hidden="true">${icon}</span>
+      <span class="btnLabel">${label}</span>
+    </span>
+  </button>`;
+}
 function grid(inner){ return `<div class="grid">${inner}</div>`; }
 
 function entryLabel(e){
@@ -808,13 +823,13 @@ function render(){
       ["Pick the closest one."],
       null,
       grid(
-        btn("Guilt","guilt") +
-        btn("Defensive","defensive") +
-        btn("Confused / unsure","confused") +
-        btn("Ashamed","ashamed") +
-        btn("Anxious / panicking","anxious") +
-        btn("Angry","angry") +
-        btn("Numb","numb")
+        btnIcon("Guilt","guilt","😔") +
+        btnIcon("Defensive","defensive","😤") +
+        btnIcon("Confused / unsure","confused","😕") +
+        btnIcon("Ashamed","ashamed","😳") +
+        btnIcon("Anxious / panicking","anxious","😰") +
+        btnIcon("Angry","angry","😠") +
+        btnIcon("Numb","numb","😶")
       )
     );
     actions.guilt=()=>{state.emotion="guilt"; go("emotionMessage");};
@@ -829,21 +844,80 @@ function render(){
 
   if(id==="emotionMessage"){
     const msg = state.emotion==="guilt"
-      ? "Feeling guilty can mean you care about impact. You don’t have to spiral to take accountability."
+      ? `You’re feeling guilty.
+
+That feeling usually shows up when you care about impact. It means something in you recognizes that what happened may not have felt okay to the other person.
+
+Guilt doesn’t mean you’re permanently a bad person. It means you’re noticing something that needs attention.
+
+Instead of spiraling, slow down and get specific. Ask yourself: what exactly would I do differently next time?
+
+Guilt becomes useful when it turns into a concrete behavior change. That’s accountability.`
       : (state.emotion==="defensive"
-        ? "Feeling defensive is common when you’re scared of being seen as “a bad person.” Let’s focus on behaviors and choices, not labels."
+        ? `You’re feeling defensive.
+
+That’s common when something threatens how you see yourself. It’s uncomfortable to even consider that you may have caused harm.
+
+Defensiveness often sounds like: “I didn’t mean to,” “That’s not who I am,” or “It wasn’t that bad.”
+
+You can care about your identity and still examine your behavior honestly.
+
+Try this: if you set aside your intention for a moment, what might their experience have been?`
         : (state.emotion==="confused"
-          ? "Confusion is normal. Consent cues can be subtle. We’ll keep this simple and concrete."
+          ? `You’re feeling confused.
+
+Confusion often happens when signals were subtle, mixed, or never clearly spoken — especially if emotions, pressure, or alcohol were involved.
+
+Instead of asking “Was that technically okay?” try asking: was there clear, enthusiastic agreement?
+
+Uncertainty usually means clarity was missing.
+
+Going forward: if you don’t have a clear yes, slow down. Ask directly. Be prepared to stop without arguing.`
           : (state.emotion==="ashamed"
-            ? "Shame can make people shut down or lash out. The goal here isn’t to destroy yourself — it’s to face impact honestly and choose safer behavior next time."
+            ? `You’re feeling shame.
+
+Shame can feel heavy. It can make you want to disappear, deny, or punish yourself.
+
+But shame tends to focus on identity — “I am bad” — instead of behavior — “I made a harmful choice.” Those are not the same.
+
+You don’t have to destroy yourself to take responsibility. What matters is whether you’re willing to look honestly at what happened and change your behavior going forward.
+
+Stay with the discomfort without collapsing into self-hatred. Growth requires staying present.`
             : (state.emotion==="anxious"
-              ? "If you’re panicking, take a breath. You don’t have to solve everything right now. Let’s focus on a few steady next steps."
+              ? `You’re feeling anxious or panicked.
+
+When consequences feel possible, your body reacts. That’s a nervous system response.
+
+Panic can push you toward worst-case thinking. Pause and slow your body first.
+
+You don’t have to solve everything immediately. Focus on one question: what is the most responsible next step I can take?
+
+Calm first. Act second.`
               : (state.emotion==="angry"
-                ? "Anger can be a defense when something feels threatening. Before you decide what you think, pause and focus on what the other person may have experienced."
-                : "Numbness can be your brain protecting you. You can still choose accountability and safer habits, even if you don’t feel clear emotions yet.")))))
+                ? `You’re feeling angry.
+
+Anger often shows up when something feels unfair, exaggerated, or threatening.
+
+But anger can protect your ego in ways that block reflection.
+
+Instead of asking “Is this fair to me?” try asking: what might have felt uncomfortable or unsafe for them?
+
+Don’t text. Don’t argue. Let the intensity drop before making decisions. Reflection requires steadiness.`
+                : `You’re feeling numb.
+
+Sometimes when something feels overwhelming, your brain shuts things down. Numbness can be a protective response.
+
+Not feeling much doesn’t mean nothing happened. And it doesn’t remove responsibility.
+
+If emotions aren’t accessible right now, focus on behavior: did I check in clearly? Did I continue after hesitation? Was there pressure involved?
+
+You can change future actions even before your feelings fully catch up.`)))));
+
+    const parts = msg.split("\n\n").filter(Boolean);
+
     screen.innerHTML = backBtn() + card(
       "Okay.",
-      [msg],
+      parts,
       null,
       grid(btn("Continue","nextSteps","btn btnPrimary"))
     );
