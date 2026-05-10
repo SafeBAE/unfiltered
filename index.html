@@ -6106,7 +6106,23 @@ function reset(){ state.entry=null; state.scenario=null; state.emotion=null; sta
 document.addEventListener("click", (e)=>{
   /* data-action navigation buttons */
   const el = e.target.closest("[data-action]");
-  if(el){ e.preventDefault(); const a = el.getAttribute("data-action"); actions[a]?.(); return; }
+  if(el){
+    e.preventDefault();
+    const a = el.getAttribute("data-action");
+    /* Privacy-friendly click tracking for resources page (these data-actions only exist on nextSteps) */
+    try{
+      if((a === "repair" || a === "shiftThinking") && window.goatcounter && typeof window.goatcounter.count === "function"){
+        const evt = a === "repair" ? "resource-repair-click" : "resource-shift-your-thinking-click";
+        const ttl = a === "repair" ? "Resources: Repair clicked" : "Resources: Shift Your Thinking clicked";
+        window.goatcounter.count({ path: evt, title: ttl, event: true });
+        console.log("[gc] tracked:", evt);
+      } else if((a === "repair" || a === "shiftThinking")) {
+        console.warn("[gc] could not track — window.goatcounter not ready");
+      }
+    }catch(err){ console.warn("[gc] tracking error:", err); }
+    actions[a]?.();
+    return;
+  }
 
   /* Collapsible contentSection toggling */
   const csHead = e.target.closest(".contentSection__head");
