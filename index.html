@@ -5335,6 +5335,352 @@
 .emotionCard[data-action="unsure"]:hover { background: rgba(170,160,200,.12); box-shadow: 0 0 14px rgba(170,160,200,.22); }
 .emotionEmoji { font-size: 34px; line-height: 1; display: block; }
 .emotionLabel { font-size: 13px; font-weight: 800; color: var(--sb-light); display: block; line-height: 1.3; }
+
+    /* ===== EMOTION WHEEL (radial) ===== */
+    .ewWrap{
+      position: relative;
+      width: 100%;
+      max-width: 380px;
+      margin: 8px auto 6px;
+      aspect-ratio: 1;
+    }
+    .ewSvg{
+      width: 100%;
+      height: 100%;
+      display: block;
+      overflow: visible;
+      touch-action: manipulation;
+    }
+    .ewWedge{
+      cursor: pointer;
+      transform-origin: 200px 200px;
+      transition: transform var(--dur-normal) cubic-bezier(.22,1,.36,1), opacity var(--dur-normal) ease;
+      outline: none;
+    }
+    .ewWedge path{
+      transition: fill-opacity var(--dur-normal) ease, stroke-opacity var(--dur-normal) ease;
+    }
+    .ewSvg.has-selection .ewWedge:not(.is-selected){ opacity: .32; }
+    .ewWedge.is-selected{ transform: scale(1.045); }
+    .ewWedge.is-selected path{ stroke-opacity: 1; }
+    .ewWedge:focus-visible path{ stroke-width: 2.6; stroke-opacity: 1; }
+    .ewWedgeLabel{
+      font-size: 12.5px;
+      font-weight: 900;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      pointer-events: none;
+      user-select: none;
+    }
+    .ewHub{ pointer-events: none; }
+    .ewHubBg{
+      fill: rgba(0,0,0,.30);
+      stroke: rgba(209,254,255,.16);
+      stroke-width: 1;
+    }
+    .ewHubText{
+      text-anchor: middle;
+      fill: var(--sb-light);
+      font-weight: 900;
+      font-size: 13px;
+    }
+    .ewHubText.ewHubDim{
+      font-weight: 500;
+      font-size: 10.5px;
+      fill: rgba(209,254,255,.65);
+    }
+
+    .ewHelper{
+      text-align: center;
+      font-size: 12px;
+      color: rgba(209,254,255,.65);
+      margin: 2px 0 14px;
+    }
+
+    .ewPanel{
+      background: rgba(0,0,0,.25);
+      border: 1px solid rgba(209,254,255,.16);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-top: 14px;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity var(--dur-normal) ease, transform var(--dur-normal) ease;
+      pointer-events: none;
+    }
+    .ewPanel.is-active{
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .ewPanelHead{
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid rgba(209,254,255,.10);
+    }
+    .ewPanelEyebrow{
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+    }
+    .ewPanelSub{
+      font-size: 12px;
+      color: var(--muted);
+      opacity: .85;
+      font-weight: 500;
+    }
+    .ewSubGrid{
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    @media (max-width: 360px){ .ewSubGrid{ grid-template-columns: 1fr; } }
+    .ewSubBtn{
+      appearance: none;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(209,254,255,.16);
+      color: var(--sb-light);
+      border-radius: var(--radius-md);
+      padding: 11px 12px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      transition: background var(--dur-fast) ease, border-color var(--dur-fast) ease, color var(--dur-fast) ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .ewSubBtn:hover{
+      background: rgba(255,255,255,.09);
+      border-color: rgba(209,254,255,.28);
+    }
+    .ewSubBtn.is-selected{
+      background: rgba(255,255,255,.06);
+      border-width: 2px;
+      padding: 10px 11px;
+      font-weight: 900;
+    }
+    .ewMsg{
+      margin-top: 14px;
+      padding: 14px 16px;
+      border: 1px solid rgba(209,254,255,.16);
+      border-left-width: 3px;
+      border-radius: var(--radius-md);
+      background: rgba(0,0,0,.20);
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: var(--sb-light);
+    }
+    .ewMsgTitle{
+      font-size: 11.5px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .ewMsgBody{ color: var(--muted); }
+    .ewActions{
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .ewRouteBtn{
+      appearance: none;
+      background: rgba(21,255,200,.08);
+      border: 1px solid rgba(21,255,200,.32);
+      color: var(--sb-mint);
+      border-radius: var(--radius-md);
+      padding: 11px 14px;
+      font-size: 13px;
+      font-weight: 900;
+      cursor: pointer;
+      font-family: inherit;
+      text-align: center;
+      transition: background var(--dur-fast) ease, border-color var(--dur-fast) ease;
+    }
+    .ewRouteBtn:hover{
+      background: rgba(21,255,200,.14);
+      border-color: rgba(21,255,200,.55);
+    }
+
+    /* ===== BODY CHECK-IN ===== */
+    .bcWrap{
+      position: relative;
+      width: 100%;
+      max-width: 360px;
+      margin: 6px auto 0;
+      aspect-ratio: 300 / 500;
+    }
+    .bcSvg{
+      width: 100%;
+      height: 100%;
+      display: block;
+      overflow: visible;
+      touch-action: manipulation;
+    }
+    /* Figure shapes — soft gradient fill from defs, gentle stroke */
+    .bcFigure path,
+    .bcFigure circle,
+    .bcFigure ellipse{
+      fill: url(#bcFigGrad);
+      stroke: rgba(209,254,255,.32);
+      stroke-width: 1.3;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+    .bcFigureGlow{ opacity: .42; }
+    .bcAura{ opacity: .55; pointer-events: none; }
+
+    .bcRegion{ cursor: pointer; outline: none; }
+
+    /* Two-part hotspot: outer halo (animated) + solid center dot */
+    .bcHalo{
+      transform-origin: center;
+      transform-box: fill-box;
+      animation: bcHaloPulse 2.8s ease-in-out infinite;
+    }
+    .bcDot{
+      transition: r var(--dur-normal) ease, fill-opacity var(--dur-normal) ease;
+    }
+    @keyframes bcHaloPulse{
+      0%, 100%{ transform: scale(0.85); opacity: .28; }
+      50%     { transform: scale(1.15); opacity: .55; }
+    }
+    .bcRegion:hover .bcHalo,
+    .bcRegion:focus-visible .bcHalo{
+      animation: none;
+      opacity: .55;
+      transform: scale(1.1);
+    }
+
+    .bcLeader{
+      stroke-width: 1;
+      stroke-dasharray: 2 3;
+      stroke-opacity: .38;
+      fill: none;
+      transition: stroke-opacity var(--dur-normal) ease, stroke-dasharray var(--dur-normal) ease;
+    }
+    .bcLabel{
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .03em;
+      fill: var(--sb-light);
+      pointer-events: none;
+      user-select: none;
+      transition: font-weight var(--dur-normal) ease, fill var(--dur-normal) ease;
+    }
+
+    /* Dim non-selected regions when one is active */
+    .bcSvg.has-selection .bcRegion:not(.is-selected) .bcHalo{ opacity: .12; animation: none; transform: scale(0.85); }
+    .bcSvg.has-selection .bcRegion:not(.is-selected) .bcDot{ fill-opacity: .35; }
+    .bcSvg.has-selection .bcRegion:not(.is-selected) .bcLeader{ stroke-opacity: .15; }
+    .bcSvg.has-selection .bcRegion:not(.is-selected) .bcLabel{ fill: rgba(209,254,255,.35); }
+
+    .bcRegion.is-selected .bcHalo{
+      animation: none;
+      opacity: .7;
+      transform: scale(1.25);
+    }
+    .bcRegion.is-selected .bcDot{ fill-opacity: 1; }
+    .bcRegion.is-selected .bcLeader{ stroke-opacity: 1; stroke-dasharray: none; }
+    .bcRegion.is-selected .bcLabel{ font-weight: 900; }
+
+    .bcAlloverWrap{
+      display: flex;
+      justify-content: center;
+      margin: 6px auto 14px;
+    }
+    .bcAlloverBtn{
+      appearance: none;
+      background: rgba(209,254,255,.05);
+      border: 1px solid rgba(209,254,255,.18);
+      color: var(--sb-light);
+      border-radius: var(--radius-pill);
+      padding: 8px 16px;
+      font-size: 12.5px;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background var(--dur-fast) ease, border-color var(--dur-fast) ease;
+    }
+    .bcAlloverBtn:hover{
+      background: rgba(209,254,255,.08);
+      border-color: rgba(209,254,255,.30);
+    }
+    .bcAlloverBtn.is-selected{
+      background: rgba(21,255,200,.10);
+      border-color: var(--sb-mint);
+      color: var(--sb-mint);
+    }
+
+    .bcPanel{
+      background: rgba(0,0,0,.25);
+      border: 1px solid rgba(209,254,255,.16);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-top: 14px;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity var(--dur-normal) ease, transform var(--dur-normal) ease;
+      pointer-events: none;
+    }
+    .bcPanel.is-active{ opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .bcPanelHead{
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid rgba(209,254,255,.10);
+    }
+    .bcPanelEyebrow{
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+    }
+    .bcPanelDesc{
+      font-size: 12px;
+      color: var(--muted);
+      opacity: .85;
+      font-weight: 500;
+    }
+    .bcMsg{
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: var(--sb-light);
+      margin-bottom: 14px;
+    }
+    .bcCue{
+      background: rgba(21,255,200,.06);
+      border-left: 3px solid rgba(21,255,200,.45);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px 10px 14px;
+      margin: 12px 0 4px;
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--sb-light);
+    }
+    .bcCueLabel{
+      font-size: 10.5px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--sb-mint);
+      margin-bottom: 4px;
+    }
+    .bcActions{
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
     /* ===== CRISIS BANNER ===== */
     .crisisBanner{
       background: rgba(255,80,80,.10);
@@ -17464,97 +17810,331 @@ if(state.emotion==="okay"){
     return;
   }
 
-  // ===== Path A: Emotion Wheel =====
+  // ===== Path A: Emotion Wheel (radial) =====
 
   if(id==="emotion_wheel"){
-    const wheelInlineMessages = {
-      grief: "What you\u2019re feeling might be grief \u2014 for what happened, for the version of events you wish were true, or for something in the relationship that can\u2019t be taken back. Grief after a consent situation is real and underreported. You don\u2019t have to resolve it right now. Just notice it.",
-      regret: "Regret is guilt\u2019s quieter sibling. It says: \u201CI wish I\u2019d done that differently.\u201D That\u2019s a useful signal \u2014 it means you can see another path you didn\u2019t take. Hold onto that. It\u2019ll matter when we get to next steps.",
-      frustration: "Frustration often means you feel stuck \u2014 between what you intended and what happened, or between wanting to fix it and not knowing how. That tension is uncomfortable but productive. Don\u2019t try to resolve it by minimizing what happened. Sit in the stuck feeling. It usually loosens when you stop fighting it.",
-      restlessness: "Your body wants to do something \u2014 text, explain, fix, move. That impulse makes sense, but acting on it right now usually makes things worse. The restlessness is your nervous system trying to discharge energy. Let it. Move, walk, breathe \u2014 but don\u2019t act on the situation until the urgency passes.",
-      overwhelm: "Everything at once. Too many feelings, too many implications, too much to process. That\u2019s real. You don\u2019t have to sort through it all right now. One feeling at a time. One thought at a time. Start with whatever is loudest.",
-      denial: "If part of you is saying \u201Cit wasn\u2019t that bad\u201D or \u201Cthey\u2019re overreacting\u201D \u2014 notice that without judging it. Denial is a protective response. It doesn\u2019t mean you\u2019re a bad person; it means your brain is trying to protect your self-image. The work is gently letting that protection down, one layer at a time.",
-      dissociation: "You feel distant from what happened \u2014 like it was someone else, or like you\u2019re watching from outside. That\u2019s dissociation, and it\u2019s your mind\u2019s way of protecting you from something that feels too big. You don\u2019t need to force yourself back in. Just notice where you are. Grounding can help when you\u2019re ready.",
-      vulnerability: "This raw, exposed feeling \u2014 like something private about you is now visible. That discomfort is real. But vulnerability after something like this can actually be a door to honesty, if you let it be. The alternative \u2014 armoring up, getting defensive, shutting down \u2014 usually makes things worse.",
-      humiliation: "Deeper than embarrassment. It feels like your identity has been exposed or damaged. The instinct is to lash out or disappear. Try to do neither right now. Humiliation fades faster than you think \u2014 but the things you do while humiliated can last much longer.",
-      exposure: "The feeling that everyone knows. Everyone\u2019s judging. Every conversation is about you. That\u2019s probably not as true as it feels \u2014 but the feeling is real. Don\u2019t try to manage other people\u2019s perceptions right now. Focus on the one thing you can actually control: what you do next.",
-      minimization: "\u201CIt wasn\u2019t that serious.\u201D \u201CI\u2019m making too much of this.\u201D If that voice is loud right now, pause. Minimization is one of the most common ways people avoid accountability \u2014 not out of malice, but out of self-protection. The question isn\u2019t whether it was \u201Cthat serious.\u201D The question is: was the other person\u2019s experience what you\u2019d want it to be?",
-      justification: "\u201CBut I\u2026\u201D \u201CThey also\u2026\u201D \u201CIn context, it was\u2026\u201D Justification is your brain building a legal case for why it was okay. But this isn\u2019t a courtroom. The goal isn\u2019t to prove innocence \u2014 it\u2019s to understand impact. You can examine context later. Right now, try to set down the defense and just look at what happened.",
-      detachment: "Pulling back. Observing from a distance. Analyzing instead of feeling. Detachment can feel like clarity, but it\u2019s often a way of avoiding the emotional weight. You can be analytical later. Right now, try to stay in it \u2014 even if it\u2019s uncomfortable.",
-      curious: "You\u2019re not overwhelmed \u2014 you\u2019re engaged. You want to understand more. That\u2019s a good sign. Channel it: is there a specific pathway in this tool you haven\u2019t explored yet? A specific question about consent you\u2019ve never had answered? Curiosity is the best possible fuel for growth. Use it.",
-      calm: "Genuinely calm \u2014 not numb, not checked out, but settled and clear. If that\u2019s real, it means you\u2019ve processed enough to be present. That\u2019s a strong place to be. Use the clarity: what\u2019s one concrete thing you\u2019ll do differently? Calm is a resource. Don\u2019t waste it.",
-      indifference: "Not caring can be honest \u2014 or it can be a wall. If you genuinely feel nothing about what happened, that\u2019s worth examining. Indifference sometimes means things haven\u2019t landed yet. Other times it means you\u2019ve decided it doesn\u2019t matter. The question is: does the other person\u2019s experience matter to you? Sit with that before you move on."
+    // Label that appears on the "View full page" button for each routable emotion
+    const ROUTE_LABELS = {
+      guilt: "Guilty",
+      ashamed: "Ashamed",
+      anxious: "Anxious / Panicking",
+      angry: "Angry",
+      confused: "Confused",
+      numb: "Numb / Shut Down",
+      sad: "Sad",
+      embarrassed: "Embarrassed",
+      defensive: "Defensive",
+      okay: "Okay / Alright",
+      relieved: "Relieved"
     };
-    const wheelRoutes = {
-      guilt:"guilt", shame:"ashamed", sadness:"sad", anger:"angry",
-      anxiety:"anxious", panic:"anxious", confusion:"confused",
-      numbness:"numb", embarrassment:"embarrassed",
-      defensiveness:"defensive", relief:"relieved", okay:"okay"
-    };
-    const zones = [
-      { name:"Heavy", desc:"Weighing on you", color:"rgba(160,130,255,.7)", bg:"rgba(160,130,255,.06)", border:"rgba(160,130,255,.25)",
-        subs:["Guilt","Shame","Sadness","Grief","Regret"] },
-      { name:"Activated", desc:"Energy, tension", color:"rgba(255,100,80,.8)", bg:"rgba(255,100,80,.06)", border:"rgba(255,100,80,.25)",
-        subs:["Anger","Frustration","Anxiety","Panic","Restlessness"] },
-      { name:"Foggy", desc:"Hard to think straight", color:"rgba(180,190,210,.7)", bg:"rgba(180,190,210,.06)", border:"rgba(180,190,210,.25)",
-        subs:["Confusion","Dissociation","Numbness","Overwhelm","Denial"] },
-      { name:"Raw", desc:"Exposed, vulnerable", color:"rgba(255,160,200,.7)", bg:"rgba(255,160,200,.06)", border:"rgba(255,160,200,.25)",
-        subs:["Embarrassment","Shame","Vulnerability","Humiliation","Exposure"] },
-      { name:"Guarded", desc:"Walls up", color:"rgba(255,200,100,.7)", bg:"rgba(255,200,100,.06)", border:"rgba(255,200,100,.25)",
-        subs:["Defensiveness","Denial","Minimization","Justification","Detachment"] },
-      { name:"Settled", desc:"Relatively calm", color:"var(--sb-mint)", bg:"rgba(21,255,200,.06)", border:"rgba(21,255,200,.25)",
-        subs:["Relief","Okay","Calm","Curious","Indifference"] }
+
+    // 7 families \u00D7 6 sub-emotions = 42 entries. Each sub has a short message
+    // shown inline; some align with main-page emotions and get a "Read more" route.
+    const FAMILIES = [
+      {
+        key: "heavy", label: "Heavy", desc: "Weighing on you",
+        color: "rgb(170,140,255)", fill: "rgba(170,140,255,.22)",
+        subs: [
+          { key:"guilt", label:"Guilt", routeTo:"guilt",
+            msg:"Guilt is information. It\u2019s the signal that something you did doesn\u2019t line up with the person you want to be. That\u2019s useful \u2014 it points at a specific behavior you can examine. Don\u2019t try to make it go away. Let it tell you what it knows." },
+          { key:"shame", label:"Shame", routeTo:"ashamed",
+            msg:"Guilt says \u201CI did something wrong.\u201D Shame says \u201CI am something wrong.\u201D Notice which one you\u2019re carrying \u2014 they need different responses. Shame is heavier, less productive, and almost always exaggerating. You don\u2019t have to be a bad person to have done a harmful thing." },
+          { key:"regret", label:"Regret",
+            msg:"Regret is guilt\u2019s quieter sibling. It says: \u201CI wish I\u2019d done that differently.\u201D That\u2019s a useful signal \u2014 it means you can see another path you didn\u2019t take. Hold onto that. It\u2019ll matter when we get to next steps." },
+          { key:"remorse", label:"Remorse", routeTo:"guilt",
+            msg:"Remorse is what guilt becomes when it sticks around long enough to matter. It\u2019s the sustained reckoning \u2014 the willingness to keep looking at what happened instead of flinching away. This is the productive end of the spectrum. If you\u2019re here, you\u2019re already doing the work." },
+          { key:"grief", label:"Grief", routeTo:"sad",
+            msg:"What you\u2019re feeling might be grief \u2014 for what happened, for the version of events you wish were true, or for something in the relationship that can\u2019t be taken back. Grief after a consent situation is real and underreported. You don\u2019t have to resolve it right now. Just notice it." },
+          { key:"letdown", label:"Let yourself down",
+            msg:"Disappointment in yourself is different from shame. Shame says you\u2019re broken. This says you fell short of what you know you\u2019re capable of. That gap \u2014 between who you were in that moment and who you mean to be \u2014 is something you can actually close. Use it." }
+        ]
+      },
+      {
+        key: "activated", label: "Activated", desc: "Energy, tension",
+        color: "rgb(255,110,90)", fill: "rgba(255,110,90,.22)",
+        subs: [
+          { key:"anger", label:"Anger", routeTo:"angry",
+            msg:"Anger after being called out is almost always protecting something \u2014 usually fear, hurt, or the version of yourself you don\u2019t want to lose. Before you act on the anger, find what\u2019s underneath it. That\u2019s the conversation that actually matters." },
+          { key:"frustration", label:"Frustrated",
+            msg:"Frustration often means you feel stuck \u2014 between what you intended and what happened, or between wanting to fix it and not knowing how. That tension is uncomfortable but productive. Don\u2019t try to resolve it by minimizing what happened. Sit in the stuck. It usually loosens when you stop fighting it." },
+          { key:"resentment", label:"Resentful", routeTo:"angry",
+            msg:"Resentment is anger that\u2019s set up camp. It\u2019s the slow-burn version \u2014 usually pointed at someone you feel made you the villain unfairly. Maybe they did. Maybe they didn\u2019t. But staying in resentment turns one bad moment into a long story. The way out is honesty about your own part, even if theirs isn\u2019t perfect." },
+          { key:"defensive", label:"Defensive", routeTo:"defensive",
+            msg:"Defensiveness shows up when something threatens your self-image. It\u2019s automatic \u2014 not a choice. Notice it without judging it, then ask: \u201CWhat would I hear if I weren\u2019t defending right now?\u201D That\u2019s the question that opens the door." },
+          { key:"indignant", label:"Indignant",
+            msg:"Indignation feels like righteous anger \u2014 \u201CI can\u2019t believe they\u2019re saying this about me.\u201D Sometimes it\u2019s warranted. Sometimes it\u2019s defensiveness in a costume. The test: are you indignant about the facts, or about being seen at your worst? Be honest with yourself before you act on it." },
+          { key:"restless", label:"Restless",
+            msg:"Your body wants to do something \u2014 text, explain, fix, move. That impulse makes sense, but acting on it right now usually makes things worse. The restlessness is your nervous system trying to discharge energy. Let it. Move, walk, breathe \u2014 but don\u2019t act on the situation until the urgency passes." }
+        ]
+      },
+      {
+        key: "afraid", label: "Afraid", desc: "Scanning for threat",
+        color: "rgb(255,205,90)", fill: "rgba(255,205,90,.22)",
+        subs: [
+          { key:"anxious", label:"Anxious", routeTo:"anxious",
+            msg:"Anxiety is your system saying \u201Csomething is wrong and I don\u2019t know what to do about it.\u201D Right now it\u2019s probably scanning for every worst-case outcome. That\u2019s not insight \u2014 it\u2019s a stuck loop. The way out isn\u2019t more thinking. It\u2019s slowing the body down first." },
+          { key:"panic", label:"Panicked", routeTo:"anxious",
+            msg:"Panic isn\u2019t a thought \u2014 it\u2019s a body event. You can\u2019t reason your way out of it. Try this: breathe out longer than you breathe in (4 in, 6 out). Repeat for two minutes. Once the panic eases, you can think again. Don\u2019t make any decisions until then." },
+          { key:"dread", label:"Dread", routeTo:"anxious",
+            msg:"Dread is fear pointed at something specific that hasn\u2019t happened yet. It\u2019s the anticipation of consequences. Pause and ask: what exactly am I dreading? Get it concrete. \u201CEveryone finding out\u201D is hard to address. \u201CMy closest friend\u2019s reaction\u201D is something you can actually plan for." },
+          { key:"powerless", label:"Powerless",
+            msg:"The feeling that whatever happens now is out of your hands. Some of that\u2019s true \u2014 you can\u2019t control other people\u2019s reactions or what they tell others. But you do control what you do next. Focus there. The list of things you can control is shorter than you\u2019d like, but it\u2019s not empty." },
+          { key:"trapped", label:"Trapped",
+            msg:"Trapped feels like every option is bad \u2014 confess and lose, deny and lie, run and prove their point. That tunnel vision is the fear talking. There are almost always more options than the panic is showing you. Slow down. Write them out. Even bad options become workable once they\u2019re on paper." },
+          { key:"exposed_fear", label:"About to be found out",
+            msg:"The specific fear that the version of you other people see is about to collide with the version you\u2019re trying to hide. That dread is real. But here\u2019s the thing: the version you\u2019re hiding is almost always worse in your head than it is in reality. Whatever happens, hiding longer rarely helps." }
+        ]
+      },
+      {
+        key: "foggy", label: "Foggy", desc: "Hard to think straight",
+        color: "rgb(185,200,225)", fill: "rgba(185,200,225,.22)",
+        subs: [
+          { key:"confused", label:"Confused", routeTo:"confused",
+            msg:"Confusion after something hard is your brain trying to load more than it has capacity for. You don\u2019t need to figure it all out right now. Pick one specific question \u2014 \u201CWhat actually happened?\u201D or \u201CWhat did they say I did?\u201D \u2014 and work on just that one." },
+          { key:"numb", label:"Numb", routeTo:"numb",
+            msg:"Numbness isn\u2019t the absence of feeling \u2014 it\u2019s your system saying \u201CI can\u2019t hold this much at once.\u201D That\u2019s not failure. That\u2019s a fuse blowing to protect the wiring. Don\u2019t force yourself to feel at full volume. Start with one small, real sensation. Cold water on your hands. A walk. One honest sentence." },
+          { key:"spaced", label:"Spaced out", routeTo:"numb",
+            msg:"You feel distant from what happened \u2014 like it was someone else, or like you\u2019re watching from outside. That\u2019s dissociation, and it\u2019s your mind\u2019s way of protecting you from something that feels too big. You don\u2019t need to force yourself back in. Just notice where you are. Grounding can help when you\u2019re ready." },
+          { key:"overwhelm", label:"Overwhelmed", routeTo:"anxious",
+            msg:"Everything at once. Too many feelings, too many implications, too much to process. That\u2019s real. You don\u2019t have to sort through it all right now. One feeling at a time. One thought at a time. Start with whatever is loudest." },
+          { key:"disbelief", label:"In disbelief",
+            msg:"\u201CThis isn\u2019t happening.\u201D \u201CThis can\u2019t be real.\u201D Disbelief is the first wall \u2014 your brain refusing to integrate something it doesn\u2019t know how to hold. That wall comes down on its own timeline. You can\u2019t force it, but you can stop arguing with it. Let it be there. Just don\u2019t make any big decisions while it is." },
+          { key:"hollow", label:"Hollow", routeTo:"numb",
+            msg:"Not numb, exactly \u2014 emptied out. Like something important got scooped out and you\u2019re walking around as a shell. This often comes after big emotions exhaust themselves. It\u2019s not permanent. It\u2019s the quiet after a storm, and what fills it next depends on what you do in the next few days. Be gentle with the empty version of you. It refills." }
+        ]
+      },
+      {
+        key: "raw", label: "Raw", desc: "Exposed, tender",
+        color: "rgb(255,160,200)", fill: "rgba(255,160,200,.22)",
+        subs: [
+          { key:"vulnerable", label:"Vulnerable",
+            msg:"This raw, exposed feeling \u2014 like something private about you is now visible. That discomfort is real. But vulnerability after something like this can actually be a door to honesty, if you let it be. The alternative \u2014 armoring up, getting defensive, shutting down \u2014 usually makes things worse." },
+          { key:"humiliated", label:"Humiliated", routeTo:"embarrassed",
+            msg:"Deeper than embarrassment. It feels like your identity has been exposed or damaged. The instinct is to lash out or disappear. Try to do neither right now. Humiliation fades faster than you think \u2014 but the things you do while humiliated can last much longer." },
+          { key:"exposed", label:"Exposed", routeTo:"embarrassed",
+            msg:"The feeling that everyone knows. Everyone\u2019s judging. Every conversation is about you. That\u2019s probably not as true as it feels \u2014 but the feeling is real. Don\u2019t try to manage other people\u2019s perceptions right now. Focus on the one thing you can actually control: what you do next." },
+          { key:"heartbroken", label:"Heartbroken", routeTo:"sad",
+            msg:"If there was a real relationship here \u2014 even a brief one \u2014 what you\u2019re feeling might be heartbreak alongside everything else. The loss of who they were to you, who you were together, who you thought you were. That grief is allowed to coexist with accountability. One doesn\u2019t cancel the other." },
+          { key:"lonely", label:"Lonely", routeTo:"sad",
+            msg:"Lonely after a consent situation is one of the hardest kinds of lonely \u2014 the people you\u2019d normally turn to are exactly the people you can\u2019t talk to about this. That isolation is brutal, and it pushes a lot of bad decisions. Find one person, even a stranger (a hotline, a therapist\u2019s intake line), who can hold this with you. You don\u2019t have to do it alone." },
+          { key:"worthless", label:"Worthless", routeTo:"ashamed",
+            msg:"If a voice in you is saying \u201CI don\u2019t deserve anything good\u201D \u2014 that\u2019s shame in its loudest form, not the truth. One action, one moment, one failure doesn\u2019t define your worth. The work of repair is not the same as deserving to be erased. Stay with that distinction." }
+        ]
+      },
+      {
+        key: "guarded", label: "Guarded", desc: "Walls up",
+        color: "rgb(255,175,90)", fill: "rgba(255,175,90,.22)",
+        subs: [
+          { key:"denial", label:"In denial", routeTo:"defensive",
+            msg:"If part of you is saying \u201Cit wasn\u2019t that bad\u201D or \u201Cthey\u2019re overreacting\u201D \u2014 notice that without judging it. Denial is a protective response. It doesn\u2019t mean you\u2019re a bad person; it means your brain is trying to protect your self-image. The work is gently letting that protection down, one layer at a time." },
+          { key:"minimizing", label:"Minimizing", routeTo:"defensive",
+            msg:"\u201CIt wasn\u2019t that serious.\u201D \u201CI\u2019m making too much of this.\u201D If that voice is loud right now, pause. Minimization is one of the most common ways people avoid accountability \u2014 not out of malice, but out of self-protection. The question isn\u2019t whether it was \u201Cthat serious.\u201D The question is: was the other person\u2019s experience what you\u2019d want it to be?" },
+          { key:"justifying", label:"Justifying", routeTo:"defensive",
+            msg:"\u201CBut I\u2026\u201D \u201CThey also\u2026\u201D \u201CIn context, it was\u2026\u201D Justification is your brain building a legal case for why it was okay. But this isn\u2019t a courtroom. The goal isn\u2019t to prove innocence \u2014 it\u2019s to understand impact. You can examine context later. Right now, try to set down the defense and just look at what happened." },
+          { key:"detached", label:"Detached", routeTo:"numb",
+            msg:"Pulling back. Observing from a distance. Analyzing instead of feeling. Detachment can feel like clarity, but it\u2019s often a way of avoiding the emotional weight. You can be analytical later. Right now, try to stay in it \u2014 even if it\u2019s uncomfortable." },
+          { key:"bitter", label:"Bitter", routeTo:"angry",
+            msg:"Bitterness is what resentment becomes when it settles in. \u201CI\u2019m the one being punished here.\u201D \u201CThey\u2019re getting all the sympathy.\u201D Maybe parts of that are true. But bitterness is corrosive \u2014 it eats the version of you that\u2019s capable of repair. You don\u2019t have to be grateful for the situation. But staying bitter forecloses who you could become on the other side of it." },
+          { key:"suspicious", label:"Suspicious of yourself",
+            msg:"\u201CWait \u2014 why did I actually do that?\u201D The recursive doubt. The part of you that\u2019s wondering if there\u2019s something underneath the behavior you haven\u2019t wanted to look at. This is actually one of the most growth-oriented places you can land. Stay with the question. The answer matters more than how uncomfortable it is to find." }
+        ]
+      },
+      {
+        key: "steadying", label: "Steadying", desc: "Coming back to yourself",
+        color: "rgb(21,255,200)", fill: "rgba(21,255,200,.20)",
+        subs: [
+          { key:"relieved", label:"Relieved", routeTo:"relieved",
+            msg:"Relief after something hard isn\u2019t a moral failing. It often just means the weight of carrying it was enormous, and some of it has finally shifted. Don\u2019t manufacture extra suffering to prove you cared. But also notice: relief is a moment to choose what comes next, not an excuse to skip the work." },
+          { key:"okay", label:"Okay", routeTo:"okay",
+            msg:"If you genuinely feel okay, that\u2019s something. Not numb, not dissociated \u2014 just present and steady. Use it. \u201COkay\u201D is the state where real thinking happens. What\u2019s one specific thing you\u2019ll do differently? Don\u2019t waste a clear head." },
+          { key:"calm", label:"Calm", routeTo:"okay",
+            msg:"Genuinely calm \u2014 not numb, not checked out, but settled and clear. If that\u2019s real, it means you\u2019ve processed enough to be present. That\u2019s a strong place to be. Use the clarity: what\u2019s one concrete thing you\u2019ll do differently? Calm is a resource. Don\u2019t waste it." },
+          { key:"curious", label:"Curious",
+            msg:"You\u2019re not overwhelmed \u2014 you\u2019re engaged. You want to understand more. That\u2019s a good sign. Channel it: is there a specific pathway in this tool you haven\u2019t explored yet? A specific question about consent you\u2019ve never had answered? Curiosity is the best possible fuel for growth. Use it." },
+          { key:"humbled", label:"Humbled",
+            msg:"Humbled is different from ashamed. Ashamed wants to hide. Humbled wants to learn. It\u2019s the recognition that you had a blind spot, that your view of yourself didn\u2019t match the impact you had \u2014 and that the gap is workable. This is the most growth-oriented state on this wheel. If you\u2019re here, the next steps will land." },
+          { key:"reflective", label:"Reflective",
+            msg:"You\u2019re not running from it and you\u2019re not drowning in it \u2014 you\u2019re looking at it. Reflection is where understanding actually happens. The risk is staying here too long without acting. Let the reflection produce one concrete thing \u2014 a conversation, a change, a commitment \u2014 before the clarity fades." }
+        ]
+      }
     ];
-    let zonesHtml = zones.map(z => {
-      const subsHtml = z.subs.map(s => {
-        const key = s.toLowerCase();
-        const isRoute = wheelRoutes[key];
-        return `<button class="btn" style="font-size:13px; padding:8px 14px; border-radius:10px; border:1px solid ${z.border}; background:${z.bg}; color:var(--sb-light); cursor:pointer; text-align:left;" data-action="wheel_${key}">${s}${isRoute ? ' \u2192' : ''}</button>`;
-      }).join('');
-      return `
-        <details style="border:1px solid ${z.border}; border-radius:14px; overflow:hidden; background:${z.bg}; margin-top:8px;">
-          <summary style="cursor:pointer; padding:12px 16px; font-size:13.5px; font-weight:900; color:${z.color}; list-style:none; display:flex; justify-content:space-between; align-items:center; gap:8px; user-select:none;">
-            <span>${z.name} <span style="font-weight:400; font-size:12px; opacity:.7;">${z.desc}</span></span>
-            <span style="font-size:18px; color:${z.color}; flex-shrink:0;">&#9662;</span>
-          </summary>
-          <div style="padding:0 16px 16px; border-top:1px solid ${z.border};">
-            <div style="margin-top:12px; display:flex; flex-wrap:wrap; gap:6px;">${subsHtml}</div>
-          </div>
-        </details>`;
-    }).join('');
 
     screen.innerHTML = backBtn() + card(
       "Let\u2019s narrow it down.",
-      ["You don\u2019t have to know the exact word. Just start with the zone that feels closest, then see if anything underneath it clicks."],
+      ["You don\u2019t have to know the exact word. Tap the family that feels closest \u2014 then drill in to a more specific feeling."],
       null,
-      `${zonesHtml}
-      <div id="wheelInlineMsg" style="display:none; margin-top:14px;"></div>
-      <div id="wheelNav" style="display:none; margin-top:14px;">
-        ${grid(btn("Continue to next steps","nextSteps","btn btnPrimary"))}
-      </div>`
+      `<div class="ewWrap">
+         <svg class="ewSvg" id="ewSvg" viewBox="0 0 400 400" aria-label="Emotion wheel" role="group">
+           <g id="ewWedges"></g>
+           <g class="ewHub">
+             <circle class="ewHubBg" cx="200" cy="200" r="62"/>
+             <text class="ewHubText" x="200" y="194">Tap a</text>
+             <text class="ewHubText" x="200" y="212">family</text>
+             <text class="ewHubText ewHubDim" x="200" y="230">7 to choose from</text>
+           </g>
+         </svg>
+       </div>
+       <div class="ewHelper">Can\u2019t name it? <a href="#" data-action="goBodyFromWheel" style="color:var(--sb-mint); border-bottom:1px dotted rgba(21,255,200,.4); text-decoration:none;">Try the body check-in \u2192</a></div>
+       <div class="ewPanel" id="ewPanel" aria-live="polite">
+         <div class="ewPanelHead">
+           <div class="ewPanelEyebrow" id="ewPanelEyebrow">Family</div>
+           <div class="ewPanelSub" id="ewPanelSub">description</div>
+         </div>
+         <div class="ewSubGrid" id="ewSubGrid"></div>
+         <div class="ewMsg" id="ewMsg" style="display:none;">
+           <div class="ewMsgTitle" id="ewMsgTitle"></div>
+           <div class="ewMsgBody" id="ewMsgBody"></div>
+         </div>
+         <div class="ewActions" id="ewActions" style="display:none;"></div>
+       </div>`
     );
 
-    // Wire up sub-emotion actions
-    zones.forEach(z => {
-      z.subs.forEach(s => {
-        const key = s.toLowerCase();
-        actions['wheel_' + key] = () => {
-          if (wheelRoutes[key]) {
-            state.emotion = wheelRoutes[key];
-            go("emotionMessage");
-          } else if (wheelInlineMessages[key]) {
-            const msgEl = document.getElementById('wheelInlineMsg');
-            const navEl = document.getElementById('wheelNav');
-            if (msgEl) {
-              msgEl.style.display = 'block';
-              msgEl.innerHTML = '<div class="infoBox"><div class="eyebrow">' + s + '</div><div class="callout__body">' + wheelInlineMessages[key] + '</div></div>';
-              msgEl.scrollIntoView({behavior:'smooth', block:'nearest'});
-            }
-            if (navEl) navEl.style.display = 'block';
-          }
-        };
+    // ---- Build the SVG wedges programmatically ----
+    const SVG_NS = "http://www.w3.org/2000/svg";
+    const wedgesEl = document.getElementById("ewWedges");
+    const svgEl    = document.getElementById("ewSvg");
+    const CX = 200, CY = 200;
+    const R_OUTER = 196, R_INNER = 70, R_LABEL = 138;
+    const N = FAMILIES.length;
+    const STEP = (2 * Math.PI) / N;
+    const GAP  = 0.014;
+
+    function polar(r, theta){ return { x: CX + r*Math.cos(theta), y: CY + r*Math.sin(theta) }; }
+    function wedgeD(start, end, rOut, rIn){
+      const p1 = polar(rOut, start), p2 = polar(rOut, end);
+      const p3 = polar(rIn,  end),   p4 = polar(rIn,  start);
+      const large = (end - start) > Math.PI ? 1 : 0;
+      return `M ${p1.x},${p1.y} A ${rOut},${rOut} 0 ${large},1 ${p2.x},${p2.y} L ${p3.x},${p3.y} A ${rIn},${rIn} 0 ${large},0 ${p4.x},${p4.y} Z`;
+    }
+
+    FAMILIES.forEach((fam, i) => {
+      const start = -Math.PI/2 + i*STEP + GAP;
+      const end   = -Math.PI/2 + (i+1)*STEP - GAP;
+      const mid   = (start + end)/2;
+
+      const g = document.createElementNS(SVG_NS, "g");
+      g.classList.add("ewWedge");
+      g.setAttribute("data-family", fam.key);
+      g.setAttribute("role", "button");
+      g.setAttribute("tabindex", "0");
+      g.setAttribute("aria-label", fam.label + ": " + fam.desc);
+
+      const path = document.createElementNS(SVG_NS, "path");
+      path.setAttribute("d", wedgeD(start, end, R_OUTER, R_INNER));
+      path.setAttribute("fill", fam.fill);
+      path.setAttribute("stroke", fam.color);
+      path.setAttribute("stroke-width", "1.5");
+      path.setAttribute("stroke-opacity", ".65");
+      g.appendChild(path);
+
+      const labelPos = polar(R_LABEL, mid);
+      const t = document.createElementNS(SVG_NS, "text");
+      t.setAttribute("class", "ewWedgeLabel");
+      t.setAttribute("x", labelPos.x);
+      t.setAttribute("y", labelPos.y);
+      t.setAttribute("text-anchor", "middle");
+      t.setAttribute("dominant-baseline", "middle");
+      t.setAttribute("fill", fam.color);
+      t.textContent = fam.label;
+      g.appendChild(t);
+
+      g.addEventListener("click", () => selectFamily(fam.key));
+      g.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectFamily(fam.key); }
       });
+
+      wedgesEl.appendChild(g);
     });
+
+    // ---- Interaction ----
+    const panelEl      = document.getElementById("ewPanel");
+    const eyebrowEl    = document.getElementById("ewPanelEyebrow");
+    const subDescEl    = document.getElementById("ewPanelSub");
+    const subGridEl    = document.getElementById("ewSubGrid");
+    const msgEl        = document.getElementById("ewMsg");
+    const msgTitleEl   = document.getElementById("ewMsgTitle");
+    const msgBodyEl    = document.getElementById("ewMsgBody");
+    const actionsBoxEl = document.getElementById("ewActions");
+
+    let currentFamily = null;
+
+    function selectFamily(key){
+      const fam = FAMILIES.find(f => f.key === key);
+      if (!fam) return;
+      currentFamily = fam;
+
+      svgEl.classList.add("has-selection");
+      document.querySelectorAll(".ewWedge").forEach(w => {
+        w.classList.toggle("is-selected", w.getAttribute("data-family") === key);
+      });
+
+      eyebrowEl.textContent = fam.label;
+      eyebrowEl.style.color = fam.color;
+      subDescEl.textContent = fam.desc;
+
+      // Build sub-emotion buttons
+      subGridEl.innerHTML = "";
+      fam.subs.forEach(sub => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "ewSubBtn";
+        b.textContent = sub.label;
+        b.setAttribute("data-sub", sub.key);
+        b.addEventListener("click", () => selectSub(fam, sub, b));
+        subGridEl.appendChild(b);
+      });
+
+      msgEl.style.display = "none";
+      actionsBoxEl.style.display = "none";
+      actionsBoxEl.innerHTML = "";
+
+      panelEl.classList.add("is-active");
+      setTimeout(() => panelEl.scrollIntoView({ behavior:"smooth", block:"nearest" }), 50);
+    }
+
+    function selectSub(fam, sub, btnEl){
+      // Highlight selected sub-emotion
+      document.querySelectorAll(".ewSubBtn").forEach(b => {
+        b.classList.remove("is-selected");
+        b.style.borderColor = "";
+        b.style.color = "";
+      });
+      btnEl.classList.add("is-selected");
+      btnEl.style.borderColor = fam.color;
+      btnEl.style.color = fam.color;
+
+      // Show inline message
+      msgTitleEl.textContent = sub.label;
+      msgTitleEl.style.color = fam.color;
+      msgBodyEl.textContent = sub.msg;
+      msgEl.style.display = "block";
+      msgEl.style.borderLeftColor = fam.color;
+
+      // Build action buttons (route + continue)
+      actionsBoxEl.innerHTML = "";
+      if (sub.routeTo && ROUTE_LABELS[sub.routeTo]) {
+        const routeBtn = document.createElement("button");
+        routeBtn.type = "button";
+        routeBtn.className = "ewRouteBtn";
+        routeBtn.textContent = "Read more on the " + ROUTE_LABELS[sub.routeTo] + " page \u2192";
+        routeBtn.addEventListener("click", () => {
+          state.emotion = sub.routeTo;
+          go("emotionMessage");
+        });
+        actionsBoxEl.appendChild(routeBtn);
+      }
+      const contBtn = document.createElement("button");
+      contBtn.type = "button";
+      contBtn.className = "btn btnPrimary";
+      contBtn.textContent = "Continue to next steps \u2192";
+      contBtn.addEventListener("click", () => go("nextSteps"));
+      actionsBoxEl.appendChild(contBtn);
+
+      actionsBoxEl.style.display = "flex";
+      setTimeout(() => msgEl.scrollIntoView({ behavior:"smooth", block:"nearest" }), 50);
+    }
+
+    actions.goBodyFromWheel = () => go("emotion_body");
     actions.nextSteps = () => go("nextSteps");
     return;
   }
@@ -17562,78 +18142,343 @@ if(state.emotion==="okay"){
   // ===== Path B: Body Check-In =====
 
   if(id==="emotion_body"){
-    const bodyAreas = {
-      head: { label:"Head", icon:"\uD83E\uDDE0", desc:"Racing thoughts, pressure, fog",
-        msg:"When your head is where you feel it \u2014 racing thoughts, pressure, mental fog \u2014 that often points toward <b>anxiety</b>, <b>overwhelm</b>, or <b>confusion</b>. Your brain is trying to process more than it can hold right now.",
-        suggest:"anxious", suggestLabel:"Explore: Anxious" },
-      throat: { label:"Throat", icon:"\uD83D\uDDE3\uFE0F", desc:"Tightness, lump, words stuck",
-        msg:"A tight throat, a lump, words you can\u2019t get out \u2014 that often connects to <b>shame</b>, <b>guilt</b>, or something you need to say but can\u2019t yet. The body holds what the mouth won\u2019t release.",
-        suggest:"ashamed", suggestLabel:"Explore: Ashamed" },
-      chest: { label:"Chest", icon:"\u2764\uFE0F", desc:"Heavy, tight, aching",
-        msg:"Heaviness or tightness in the chest usually means <b>sadness</b>, <b>grief</b>, or <b>guilt</b>. That weight is emotional, not physical \u2014 but your body doesn\u2019t know the difference.",
-        suggest:"sad", suggestLabel:"Explore: Sad" },
-      stomach: { label:"Stomach", icon:"\uD83E\uDE79", desc:"Knots, nausea, sinking",
-        msg:"That sinking feeling, the knots, the nausea \u2014 your gut is reacting to something your conscious mind may not have fully processed yet. This often points toward <b>guilt</b>, <b>anxiety</b>, or <b>dread</b>.",
-        suggest:"guilt", suggestLabel:"Explore: Guilt" },
-      hands: { label:"Hands", icon:"\u270B", desc:"Shaking, clenched, restless",
-        msg:"Shaking, clenching, restlessness in your hands \u2014 that\u2019s your body\u2019s fight-or-flight energy looking for somewhere to go. This often connects to <b>anger</b>, <b>anxiety</b>, or <b>restlessness</b>.",
-        suggest:"angry", suggestLabel:"Explore: Angry" },
-      shoulders: { label:"Shoulders", icon:"\uD83E\uDDD1", desc:"Tense, hunched, guarded",
-        msg:"Tension in the shoulders, hunching, guarding \u2014 your body is bracing for something. This often connects to <b>defensiveness</b>, <b>anxiety</b>, or a sense of being on guard. You\u2019re carrying something you haven\u2019t set down yet.",
-        suggest:"defensive", suggestLabel:"Explore: Defensive" },
-      allover: { label:"Nothing specific / All over", icon:"\uD83C\uDF00", desc:"General unease, can\u2019t locate it",
-        msg:"When it\u2019s everywhere and nowhere \u2014 a general unease that won\u2019t sit still \u2014 that often means the feeling hasn\u2019t found its name yet. That\u2019s okay. You might be <b>overwhelmed</b>, <b>numb</b>, or processing something too big to localize.",
-        suggest:"numb", suggestLabel:"Explore: Numb" }
+    // Route labels (for the "Read more on..." button)
+    const ROUTE_LABELS = {
+      anxious: "Anxious / Panicking",
+      angry: "Angry",
+      ashamed: "Ashamed",
+      sad: "Sad",
+      defensive: "Defensive",
+      guilt: "Guilty",
+      numb: "Numb / Shut Down"
     };
-    const areaKeys = ["head","throat","chest","stomach","hands","shoulders","allover"];
-    const areasHtml = areaKeys.map(k => {
-      const a = bodyAreas[k];
-      return `<button class="btn choiceButton" data-action="body_${k}" style="text-align:left; display:flex; align-items:center; gap:12px; padding:12px 16px;">
-        <span style="font-size:24px; flex-shrink:0;">${a.icon}</span>
-        <span>
-          <span style="display:block; font-weight:900; font-size:14px;">${a.label}</span>
-          <span style="display:block; font-size:12px; opacity:.65; margin-top:2px;">${a.desc}</span>
-        </span>
-      </button>`;
-    }).join('');
+
+    // Body regions positioned on the SVG figure. Each has a hotspot (cx,cy)
+    // and a label position with a leader line. Colors are tuned to the
+    // emotion family the region typically points toward.
+    const REGIONS = [
+      { key:"head", label:"Head", desc:"Racing thoughts, pressure, fog",
+        cx:150, cy:38, side:"right",
+        color:"rgb(170,140,255)",
+        routeTo:"anxious",
+        msg:"Your head is overworking. Racing thoughts, pressure behind your eyes, mental fog \u2014 your brain is trying to process more than it has capacity for. This is almost always anxiety, overwhelm, or confusion.",
+        cue:"Cold water on the inside of your wrists for 30 seconds. The temperature shock interrupts the loop and resets your nervous system. The fix isn\u2019t more thinking." },
+
+      { key:"jaw", label:"Jaw", desc:"Clenched teeth, words held back",
+        cx:150, cy:64, side:"left",
+        color:"rgb(255,110,90)",
+        routeTo:"angry",
+        msg:"The jaw is one of the body\u2019s main storage units for what you can\u2019t say out loud. Ground teeth, tight mouth, tension along the hinge \u2014 usually anger, or words you\u2019re holding back. Sometimes both.",
+        cue:"Open your mouth as wide as it goes, hold for three seconds, then release with a long exhale. Repeat twice. The body lets go of what the mouth won\u2019t." },
+
+      { key:"throat", label:"Throat", desc:"Lump, tightness, stuck words",
+        cx:150, cy:90, side:"right",
+        color:"rgb(255,160,200)",
+        routeTo:"ashamed",
+        msg:"A tight throat, a lump, words you can\u2019t get out \u2014 that often connects to shame, guilt, or something you need to say but can\u2019t yet. The throat closes when there\u2019s something it knows needs out but isn\u2019t ready.",
+        cue:"You don\u2019t have to speak yet. But if there\u2019s something specific stuck there, write down one sentence. The page is a safer first step than the conversation." },
+
+      { key:"shoulders", label:"Shoulders", desc:"Tense, hunched, braced",
+        cx:115, cy:108, side:"left",
+        color:"rgb(255,175,90)",
+        routeTo:"defensive",
+        msg:"Shoulders up, hunched forward, the urge to brace \u2014 your body is preparing for impact. You\u2019re carrying something heavier than you\u2019ve set down. This often connects to defensiveness, anxiety, or sustained vigilance.",
+        cue:"Roll your shoulders back three times slowly. On the third one, drop them with a long exhale. Notice how much you were holding without knowing it." },
+
+      { key:"chest", label:"Chest", desc:"Heavy, tight, aching, or racing",
+        cx:150, cy:152, side:"right",
+        color:"rgb(255,205,90)",
+        routeTo:"sad",
+        msg:"The chest holds a lot. If it\u2019s heavy and slow, that\u2019s usually sadness or grief. If it\u2019s tight and fast \u2014 racing heart, shallow breath \u2014 that\u2019s anxiety. The body keeps weight there because it doesn\u2019t know where else to put it.",
+        cue:"Hand flat on your chest, breathe slowly into where your hand is for two full minutes. The chest responds to touch and slowness." },
+
+      { key:"stomach", label:"Stomach", desc:"Knots, nausea, sinking",
+        cx:150, cy:208, side:"right",
+        color:"rgb(160,200,255)",
+        routeTo:"guilt",
+        msg:"That sinking feeling, the knots, the nausea \u2014 your gut is reacting to something your conscious mind may not have fully processed yet. This is often guilt, dread, or the body knowing something before the brain admits it.",
+        cue:"Hand on your stomach. Breathe in for four counts, out for six. Repeat for two minutes. The gut quiets when the breath does." },
+
+      { key:"hands", label:"Hands", desc:"Shaking, clenched, restless",
+        cx:78, cy:280, side:"left",
+        color:"rgb(255,140,140)",
+        routeTo:"angry",
+        msg:"Shaking, clenching, restlessness, cold hands \u2014 that\u2019s your body\u2019s fight-or-flight energy looking for somewhere to go. Often anger, anxiety, or both. The energy is real and needs to discharge.",
+        cue:"Press your palms flat against a wall and push as hard as you can for thirty seconds. Channeling the energy through resistance gives the body what it\u2019s asking for." },
+
+      { key:"legs", label:"Legs", desc:"Jittery, weak, wanting to run",
+        cx:130, cy:380, side:"left",
+        color:"rgb(185,200,225)",
+        routeTo:"anxious",
+        msg:"Jittery legs, weak knees, the impulse to get up and leave \u2014 that\u2019s the flight response. Some part of you is trying to outrun the moment.",
+        cue:"Honor it partially: actually move. Walk, even just around the room, for five minutes. Don\u2019t act on the situation while moving \u2014 let the body do what it needs first." }
+    ];
+
+    // "All over" is a separate option below the figure
+    const ALLOVER = {
+      key:"allover", label:"Everywhere / nowhere specific",
+      color:"rgb(21,255,200)",
+      routeTo:"numb",
+      msg:"When it\u2019s everywhere and nowhere \u2014 a general unease that won\u2019t sit still \u2014 that often means the feeling hasn\u2019t found its name yet, or it\u2019s too big to localize. That\u2019s okay. You might be overwhelmed, numb, or processing something your body hasn\u2019t sorted through.",
+      cue:"5\u20134\u20133\u20132\u20131 grounding: name five things you can see, four you can touch, three you can hear, two you can smell, one you can taste. It brings the feeling back into the room with you."
+    };
+
+    // Build the body silhouette: smoother curves, gradient fill, glow aura
+    const figurePaths = `
+      <!-- Head -->
+      <circle cx="150" cy="52" r="27"/>
+      <!-- Neck: gentle trapezoid blending into shoulders -->
+      <path d="M 138 76
+               Q 138 88 144 92
+               Q 150 95 156 92
+               Q 162 88 162 76 Z"/>
+      <!-- Torso: collarbone curve in, smooth waist taper, hip flare -->
+      <path d="M 108 96
+               C 100 96 96 102 96 112
+               L 96 196
+               C 96 222 102 238 110 246
+               L 110 272
+               C 110 280 116 282 122 282
+               L 178 282
+               C 184 282 190 280 190 272
+               L 190 246
+               C 198 238 204 222 204 196
+               L 204 112
+               C 204 102 200 96 192 96
+               Z"/>
+      <!-- Left arm: gently curved, ends at wrist -->
+      <path d="M 102 108
+               C 84 124 74 154 72 196
+               C 71 232 74 264 80 286
+               C 82 292 90 292 92 286
+               C 90 264 90 232 92 196
+               C 94 162 100 138 112 120
+               Z"/>
+      <!-- Right arm: mirror -->
+      <path d="M 198 108
+               C 216 124 226 154 228 196
+               C 229 232 226 264 220 286
+               C 218 292 210 292 208 286
+               C 210 264 210 232 208 196
+               C 206 162 200 138 188 120
+               Z"/>
+      <!-- Hands -->
+      <ellipse cx="86" cy="294" rx="10" ry="11"/>
+      <ellipse cx="214" cy="294" rx="10" ry="11"/>
+      <!-- Left leg: smooth taper, rounded foot end -->
+      <path d="M 122 282
+               C 120 320 118 380 120 442
+               C 120 456 124 464 130 464
+               C 138 464 142 456 142 442
+               C 144 380 146 320 148 282
+               Z"/>
+      <!-- Right leg -->
+      <path d="M 152 282
+               C 154 320 156 380 158 442
+               C 158 456 162 464 170 464
+               C 176 464 180 456 180 442
+               C 182 380 180 320 178 282
+               Z"/>
+      <!-- Feet (more elegant ovals, slight forward lean) -->
+      <ellipse cx="128" cy="470" rx="15" ry="6"/>
+      <ellipse cx="172" cy="470" rx="15" ry="6"/>
+    `;
 
     screen.innerHTML = backBtn() + card(
       "Where do you feel it?",
-      ["You don\u2019t have to name the emotion. Just notice where it\u2019s showing up in your body. Tap the area that feels most active right now."],
+      ["You don\u2019t have to name the emotion. Just notice where it\u2019s showing up in your body. Tap the part that feels most active right now."],
       null,
-      `<div class="stack--tight mt-lg">${areasHtml}</div>
-      <div id="bodyResult" style="display:none; margin-top:14px;"></div>`
+      `<div class="bcWrap">
+         <svg class="bcSvg" id="bcSvg" viewBox="0 0 300 500" aria-label="Body check-in" role="group">
+           <defs>
+             <radialGradient id="bcFigGrad" cx="40%" cy="22%" r="78%" fx="40%" fy="18%">
+               <stop offset="0%" stop-color="rgba(21,255,200,.22)"/>
+               <stop offset="55%" stop-color="rgba(19,132,143,.13)"/>
+               <stop offset="100%" stop-color="rgba(19,132,143,.03)"/>
+             </radialGradient>
+             <radialGradient id="bcAuraGrad" cx="50%" cy="40%" r="60%">
+               <stop offset="0%" stop-color="rgba(21,255,200,.12)"/>
+               <stop offset="60%" stop-color="rgba(21,255,200,.04)"/>
+               <stop offset="100%" stop-color="rgba(21,255,200,0)"/>
+             </radialGradient>
+             <filter id="bcSoftBlur" x="-30%" y="-30%" width="160%" height="160%">
+               <feGaussianBlur stdDeviation="4"/>
+             </filter>
+             <filter id="bcDotGlow" x="-150%" y="-150%" width="400%" height="400%">
+               <feGaussianBlur stdDeviation="4"/>
+             </filter>
+           </defs>
+           <!-- Soft ambient aura behind figure -->
+           <ellipse class="bcAura" cx="150" cy="260" rx="125" ry="225" fill="url(#bcAuraGrad)"/>
+           <!-- Blurred glow layer (same shapes, blurred, behind sharp version) -->
+           <g class="bcFigure bcFigureGlow" aria-hidden="true" filter="url(#bcSoftBlur)">${figurePaths}</g>
+           <!-- Sharp figure layer -->
+           <g class="bcFigure" aria-hidden="true">${figurePaths}</g>
+           <g id="bcRegions"></g>
+         </svg>
+       </div>
+       <div class="bcAlloverWrap">
+         <button type="button" class="bcAlloverBtn" id="bcAllover">${ALLOVER.label}</button>
+       </div>
+       <div class="bcPanel" id="bcPanel" aria-live="polite">
+         <div class="bcPanelHead">
+           <div class="bcPanelEyebrow" id="bcPanelEyebrow">Region</div>
+           <div class="bcPanelDesc" id="bcPanelDesc">description</div>
+         </div>
+         <div class="bcMsg" id="bcMsg"></div>
+         <div class="bcCue">
+           <div class="bcCueLabel">Try this right now</div>
+           <div id="bcCueBody"></div>
+         </div>
+         <div class="bcActions" id="bcActions"></div>
+       </div>`
     );
 
-    areaKeys.forEach(k => {
-      actions['body_' + k] = () => {
-        const a = bodyAreas[k];
-        const resultEl = document.getElementById('bodyResult');
-        if (resultEl) {
-          resultEl.style.display = 'block';
-          resultEl.innerHTML = `
-            <div class="infoBox" style="margin-bottom:10px;">
-              <div class="eyebrow">${a.icon} ${a.label}</div>
-              <div class="callout__body">${a.msg}</div>
-            </div>
-            <div class="stack--tight">
-              <button class="btn btnPrimary" data-action="bodySuggest_${k}" style="width:100%;">${a.suggestLabel} \u2192</button>
-              <button class="btn" data-action="bodyReset" style="width:100%;">Try another area</button>
-              <button class="btn" data-action="goWheel" style="width:100%;">Explore the emotion wheel instead</button>
-            </div>`;
-          resultEl.scrollIntoView({behavior:'smooth', block:'nearest'});
-          actions['bodySuggest_' + k] = () => {
-            state.emotion = a.suggest;
-            go("emotionMessage");
-          };
-          actions.bodyReset = () => {
-            resultEl.style.display = 'none';
-            resultEl.innerHTML = '';
-          };
-          actions.goWheel = () => go("emotion_wheel");
-        }
-      };
+    // ---- Build the labeled hotspots ----
+    const SVG_NS = "http://www.w3.org/2000/svg";
+    const regionsEl = document.getElementById("bcRegions");
+    const svgEl     = document.getElementById("bcSvg");
+
+    REGIONS.forEach(r => {
+      const g = document.createElementNS(SVG_NS, "g");
+      g.classList.add("bcRegion");
+      g.setAttribute("data-region", r.key);
+      g.setAttribute("role", "button");
+      g.setAttribute("tabindex", "0");
+      g.setAttribute("aria-label", r.label + ": " + r.desc);
+
+      // Halo (soft outer glow, animated pulse)
+      const halo = document.createElementNS(SVG_NS, "circle");
+      halo.setAttribute("cx", r.cx);
+      halo.setAttribute("cy", r.cy);
+      halo.setAttribute("r", 14);
+      halo.setAttribute("fill", r.color);
+      halo.setAttribute("filter", "url(#bcDotGlow)");
+      halo.classList.add("bcHalo");
+      g.appendChild(halo);
+
+      // Center dot (sharp, solid)
+      const dot = document.createElementNS(SVG_NS, "circle");
+      dot.setAttribute("cx", r.cx);
+      dot.setAttribute("cy", r.cy);
+      dot.setAttribute("r", 6);
+      dot.setAttribute("fill", r.color);
+      dot.setAttribute("stroke", "rgba(255,255,255,.55)");
+      dot.setAttribute("stroke-width", "1.2");
+      dot.classList.add("bcDot");
+      g.appendChild(dot);
+
+      // Leader line + label position
+      let lx, ly;
+      if (r.side === "right") {
+        lx = 232; ly = r.cy;
+      } else {
+        lx = 68; ly = r.cy;
+      }
+      const line = document.createElementNS(SVG_NS, "line");
+      line.setAttribute("x1", r.cx);
+      line.setAttribute("y1", r.cy);
+      line.setAttribute("x2", lx + (r.side === "right" ? -4 : 4));
+      line.setAttribute("y2", ly);
+      line.setAttribute("stroke", r.color);
+      line.classList.add("bcLeader");
+      g.appendChild(line);
+
+      // Label text
+      const label = document.createElementNS(SVG_NS, "text");
+      label.setAttribute("x", lx);
+      label.setAttribute("y", ly + 4);
+      label.setAttribute("text-anchor", r.side === "right" ? "start" : "end");
+      label.setAttribute("fill", r.color);
+      label.classList.add("bcLabel");
+      label.textContent = r.label;
+      g.appendChild(label);
+
+      // Invisible hit target \u2014 covers dot + label area
+      const hit = document.createElementNS(SVG_NS, "rect");
+      const hitX = r.side === "right" ? r.cx - 8 : lx - 60;
+      hit.setAttribute("x", hitX);
+      hit.setAttribute("y", Math.min(r.cy, ly) - 12);
+      hit.setAttribute("width", r.side === "right" ? (lx + 65 - hitX) : (r.cx + 14 - hitX));
+      hit.setAttribute("height", Math.abs(r.cy - ly) + 24);
+      hit.setAttribute("fill", "transparent");
+      g.appendChild(hit);
+
+      g.addEventListener("click", () => selectRegion(r));
+      g.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectRegion(r); }
+      });
+
+      regionsEl.appendChild(g);
     });
+
+    // ---- Interaction ----
+    const panelEl    = document.getElementById("bcPanel");
+    const eyebrowEl  = document.getElementById("bcPanelEyebrow");
+    const descEl     = document.getElementById("bcPanelDesc");
+    const msgEl      = document.getElementById("bcMsg");
+    const cueBodyEl  = document.getElementById("bcCueBody");
+    const actionsEl  = document.getElementById("bcActions");
+    const alloverBtn = document.getElementById("bcAllover");
+
+    function selectRegion(r){
+      svgEl.classList.add("has-selection");
+      document.querySelectorAll(".bcRegion").forEach(el => {
+        el.classList.toggle("is-selected", el.getAttribute("data-region") === r.key);
+      });
+      alloverBtn.classList.remove("is-selected");
+
+      renderPanel(r);
+    }
+
+    function selectAllover(){
+      svgEl.classList.add("has-selection");
+      document.querySelectorAll(".bcRegion").forEach(el => el.classList.remove("is-selected"));
+      alloverBtn.classList.add("is-selected");
+
+      renderPanel(ALLOVER, /*isAllover*/true);
+    }
+
+    function renderPanel(r, isAllover){
+      eyebrowEl.textContent = r.label;
+      eyebrowEl.style.color = r.color;
+      descEl.textContent = r.desc || "";
+      msgEl.textContent = r.msg;
+      cueBodyEl.textContent = r.cue;
+
+      // Build action buttons
+      actionsEl.innerHTML = "";
+      if (r.routeTo && ROUTE_LABELS[r.routeTo]) {
+        const routeBtn = document.createElement("button");
+        routeBtn.type = "button";
+        routeBtn.className = "ewRouteBtn";
+        routeBtn.textContent = "Read more on the " + ROUTE_LABELS[r.routeTo] + " page \u2192";
+        routeBtn.addEventListener("click", () => {
+          state.emotion = r.routeTo;
+          go("emotionMessage");
+        });
+        actionsEl.appendChild(routeBtn);
+      }
+      const wheelBtn = document.createElement("button");
+      wheelBtn.type = "button";
+      wheelBtn.className = "btn";
+      wheelBtn.textContent = "Try the emotion wheel instead";
+      wheelBtn.addEventListener("click", () => go("emotion_wheel"));
+      actionsEl.appendChild(wheelBtn);
+
+      const contBtn = document.createElement("button");
+      contBtn.type = "button";
+      contBtn.className = "btn btnPrimary";
+      contBtn.textContent = "Continue to next steps \u2192";
+      contBtn.addEventListener("click", () => go("nextSteps"));
+      actionsEl.appendChild(contBtn);
+
+      panelEl.classList.add("is-active");
+      setTimeout(() => panelEl.scrollIntoView({ behavior:"smooth", block:"nearest" }), 60);
+    }
+
+    alloverBtn.addEventListener("click", selectAllover);
+
     return;
   }
 
@@ -24152,6 +24997,222 @@ const VC_SEARCH_INDEX = {"landing": {"t": "Vibe Check — Home", "tag": "", "b":
     if (el && el.scrollIntoView) el.scrollIntoView({ block: 'nearest' });
   }
 
+  // ==========================================================================
+  // SEARCH QUERY CAPTURE  (development / funder-demo instrumentation)
+  // --------------------------------------------------------------------------
+  // Captures every search query the user types, after a brief debounce so we
+  // don't log mid-keystroke fragments. Three sinks, layered:
+  //
+  //   1. console.log  — visible live in DevTools while testing
+  //   2. window.VC_SEARCH_LOG — in-memory array, viewable via admin overlay
+  //   3. sendQueryExternal() — stubbed; uncomment + point at any endpoint to
+  //      send queries to GoatCounter, Plausible, a webhook, Google Sheets, etc.
+  //
+  // Open the admin overlay with  Ctrl/Cmd + Shift + S
+  // ==========================================================================
+  window.VC_SEARCH_LOG = window.VC_SEARCH_LOG || [];
+
+  var _captureTimer = null;
+  var _lastCapturedQ = '';
+  var CAPTURE_DEBOUNCE_MS = 700;   // wait for typing to settle
+  var CAPTURE_MIN_LENGTH  = 2;     // don't log 1-char fragments
+  var GC_SEARCH_ENDPOINT  = 'https://search-vibe.goatcounter.com/count';
+  var GC_MAX_TITLE_LEN    = 100;   // hard cap on what we send to GC
+
+  // Normalize for aggregation: lowercase, collapse whitespace, length-cap.
+  // Same logical query ("Consent ", "consent", "CONSENT") collapses to one
+  // row in the GoatCounter dashboard.
+  function normalizeQuery(q){
+    return (q || '')
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .slice(0, GC_MAX_TITLE_LEN);
+  }
+
+  function captureQuery(q, resultCount){
+    var query = (q || '').trim();
+    if (query.length < CAPTURE_MIN_LENGTH) return;
+    if (query === _lastCapturedQ) return; // de-dupe consecutive identical
+    _lastCapturedQ = query;
+
+    var record = {
+      ts: new Date().toISOString(),
+      query: query,
+      normalized: normalizeQuery(query),
+      results: (typeof resultCount === 'number') ? resultCount : null,
+      ua: navigator.userAgent.slice(0, 80),
+      ref: document.referrer || null,
+      sent: false
+    };
+    window.VC_SEARCH_LOG.push(record);
+    try { console.log('[VC search]', record.query, '→', record.results, 'results'); } catch(e){}
+
+    // Ship to GoatCounter (search-vibe). Fire-and-forget image pixel.
+    sendQueryExternal(record);
+
+    refreshAdminOverlayIfOpen();
+  }
+
+  function scheduleCapture(q, resultCount){
+    if (_captureTimer) clearTimeout(_captureTimer);
+    _captureTimer = setTimeout(function(){ captureQuery(q, resultCount); }, CAPTURE_DEBOUNCE_MS);
+  }
+
+  // ---- External send: GoatCounter event pixel ----
+  // Mirrors the pattern used by GC_EVENTS in the click-tracking handler:
+  //   p = grouping path (we use the normalized query so identical searches
+  //       stack up as one row in the dashboard)
+  //   t = display title shown in the dashboard
+  //   e = true (mark as event, not a pageview)
+  //   rnd = cache-buster so identical pixels actually fire each time
+  function sendQueryExternal(record){
+    try {
+      var title = 'Search: ' + record.normalized +
+                  ' (' + (record.results == null ? '?' : record.results) + ' results)';
+      var url = GC_SEARCH_ENDPOINT
+        + '?p='   + encodeURIComponent('search:' + record.normalized)
+        + '&t='   + encodeURIComponent(title.slice(0, GC_MAX_TITLE_LEN))
+        + '&e=true'
+        + '&rnd=' + Math.random().toString(36).slice(2);
+      var img = new Image(1,1);
+      img.onload  = function(){ record.sent = true;  refreshAdminOverlayIfOpen(); };
+      img.onerror = function(){ record.sent = false; refreshAdminOverlayIfOpen(); };
+      img.src = url;
+    } catch(err){ console.warn('[gc search] send error:', err); }
+  }
+
+  // ==========================================================================
+  // ADMIN OVERLAY — view / copy / download collected queries (dev only)
+  // Toggle: Ctrl/Cmd + Shift + S
+  // ==========================================================================
+  var _adminOverlay = null;
+
+  function buildAdminOverlay(){
+    if (_adminOverlay) return _adminOverlay;
+    var o = document.createElement('div');
+    o.id = 'vcSearchAdminOverlay';
+    o.style.cssText = [
+      'position:fixed','inset:auto 16px 16px auto','z-index:99999',
+      'width:min(420px, calc(100vw - 32px))','max-height:70vh',
+      'background:#0a131a','color:#D1FEFF',
+      'border:1px solid rgba(21,255,200,.35)',
+      'border-radius:14px','box-shadow:0 12px 40px rgba(0,0,0,.6)',
+      'font-family:-apple-system,system-ui,sans-serif','font-size:12px',
+      'display:flex','flex-direction:column','overflow:hidden'
+    ].join(';');
+    o.innerHTML =
+      '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(21,255,200,.05);">' +
+        '<div style="font-weight:900;letter-spacing:.05em;font-size:11px;text-transform:uppercase;color:#15FFC8;">Search Capture · Dev</div>' +
+        '<button id="vcAdminClose" style="appearance:none;background:none;border:none;color:#D1FEFF;cursor:pointer;font-size:18px;line-height:1;padding:2px 6px;">×</button>' +
+      '</div>' +
+      '<div id="vcAdminMeta" style="padding:8px 14px;font-size:11px;color:rgba(209,254,255,.7);border-bottom:1px solid rgba(255,255,255,.06);"></div>' +
+      '<div id="vcAdminList" style="flex:1;overflow:auto;padding:6px 0;"></div>' +
+      '<div style="display:flex;gap:6px;padding:10px 14px;border-top:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.3);">' +
+        '<button id="vcAdminCopy"     style="flex:1;appearance:none;background:rgba(21,255,200,.10);border:1px solid rgba(21,255,200,.35);color:#15FFC8;font-weight:800;padding:8px;border-radius:8px;cursor:pointer;font-size:11px;">Copy all</button>' +
+        '<button id="vcAdminDownload" style="flex:1;appearance:none;background:rgba(21,255,200,.10);border:1px solid rgba(21,255,200,.35);color:#15FFC8;font-weight:800;padding:8px;border-radius:8px;cursor:pointer;font-size:11px;">Download CSV</button>' +
+        '<button id="vcAdminClear"    style="flex:0 0 auto;appearance:none;background:rgba(255,120,120,.10);border:1px solid rgba(255,120,120,.35);color:#ff9999;font-weight:800;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:11px;">Clear</button>' +
+      '</div>';
+    document.body.appendChild(o);
+
+    o.querySelector('#vcAdminClose').addEventListener('click', closeAdminOverlay);
+    o.querySelector('#vcAdminCopy').addEventListener('click', function(){
+      var txt = window.VC_SEARCH_LOG.map(function(r){ return r.ts + '\t' + r.query + '\t' + r.results; }).join('\n');
+      try { navigator.clipboard.writeText(txt); this.textContent = 'Copied ✓'; var b = this; setTimeout(function(){ b.textContent = 'Copy all'; }, 1400); } catch(e){}
+    });
+    o.querySelector('#vcAdminDownload').addEventListener('click', function(){
+      var rows = [['timestamp','query','result_count','user_agent','referrer']];
+      window.VC_SEARCH_LOG.forEach(function(r){
+        rows.push([r.ts, '"' + (r.query || '').replace(/"/g,'""') + '"', r.results, '"' + (r.ua || '') + '"', '"' + (r.ref || '') + '"']);
+      });
+      var csv = rows.map(function(r){ return r.join(','); }).join('\n');
+      var blob = new Blob([csv], { type:'text/csv' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = 'vibe-check-search-queries-' + new Date().toISOString().slice(0,10) + '.csv';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+    o.querySelector('#vcAdminClear').addEventListener('click', function(){
+      if (confirm('Clear all captured search queries from this session?')){
+        window.VC_SEARCH_LOG.length = 0;
+        _lastCapturedQ = '';
+        renderAdminOverlay();
+      }
+    });
+
+    _adminOverlay = o;
+    return o;
+  }
+
+  function renderAdminOverlay(){
+    if (!_adminOverlay) return;
+    var list = _adminOverlay.querySelector('#vcAdminList');
+    var meta = _adminOverlay.querySelector('#vcAdminMeta');
+    var log = window.VC_SEARCH_LOG;
+    var sentCount = 0;
+    for (var j = 0; j < log.length; j++){ if (log[j].sent) sentCount++; }
+    meta.innerHTML = log.length + ' quer' + (log.length === 1 ? 'y' : 'ies') + ' captured · ' +
+                     '<span style="color:rgba(21,255,200,.85);">' + sentCount + ' sent to GoatCounter</span>';
+    if (!log.length){
+      list.innerHTML = '<div style="padding:24px 14px;text-align:center;color:rgba(209,254,255,.4);font-size:11px;">No queries yet. Type in the search bar to capture.</div>';
+      return;
+    }
+    var html = '';
+    for (var i = log.length - 1; i >= 0; i--){
+      var r = log[i];
+      var time = r.ts.slice(11,19);
+      var rc = (r.results == null) ? '—' : r.results;
+      var sentDot = r.sent
+        ? '<span title="Sent to GoatCounter" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#15FFC8;box-shadow:0 0 6px rgba(21,255,200,.7);flex-shrink:0;"></span>'
+        : '<span title="Pending or failed" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.18);flex-shrink:0;"></span>';
+      html += '<div style="padding:8px 14px;border-bottom:1px solid rgba(255,255,255,.04);display:flex;gap:10px;align-items:center;">' +
+                sentDot +
+                '<span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:rgba(209,254,255,.45);flex-shrink:0;">' + time + '</span>' +
+                '<span style="flex:1;color:#D1FEFF;word-break:break-word;">' + r.query.replace(/</g,'&lt;') + '</span>' +
+                '<span style="font-size:10px;color:rgba(21,255,200,.7);flex-shrink:0;">' + rc + '</span>' +
+              '</div>';
+    }
+    list.innerHTML = html;
+  }
+
+  function refreshAdminOverlayIfOpen(){
+    if (_adminOverlay && _adminOverlay.style.display !== 'none') renderAdminOverlay();
+  }
+
+  function openAdminOverlay(){
+    buildAdminOverlay().style.display = 'flex';
+    renderAdminOverlay();
+  }
+  function closeAdminOverlay(){
+    if (_adminOverlay) _adminOverlay.style.display = 'none';
+  }
+  function toggleAdminOverlay(){
+    if (_adminOverlay && _adminOverlay.style.display !== 'none') closeAdminOverlay();
+    else openAdminOverlay();
+  }
+
+  document.addEventListener('keydown', function(e){
+    // Ctrl/Cmd + Shift + S
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'S' || e.key === 's')){
+      e.preventDefault();
+      toggleAdminOverlay();
+    }
+  });
+
+  // Expose handy console helpers
+  window.VC_dumpSearches = function(){ console.table(window.VC_SEARCH_LOG); return window.VC_SEARCH_LOG; };
+  window.VC_openSearchAdmin = openAdminOverlay;
+
+  // ==========================================================================
+
+  // Wrap render() so each input event also schedules a capture.
+  var _origRender = render;
+  render = function(){
+    _origRender();
+    scheduleCapture(input.value, (lastResults && lastResults.length) || 0);
+  };
+
   input.addEventListener('input', render);
   input.addEventListener('focus', function(){ if (input.value.trim()) render(); });
 
@@ -24164,6 +25225,9 @@ const VC_SEARCH_INDEX = {"landing": {"t": "Vibe Check — Home", "tag": "", "b":
     else if (e.key === 'ArrowUp'){ e.preventDefault(); setActive(activeIdx - 1); }
     else if (e.key === 'Enter'){
       e.preventDefault();
+      // Flush capture immediately on Enter so submitted queries are guaranteed logged
+      if (_captureTimer){ clearTimeout(_captureTimer); _captureTimer = null; }
+      captureQuery(input.value, (lastResults && lastResults.length) || 0);
       var items = dropdown.querySelectorAll('.vcSearchResult');
       var pick = items[activeIdx] || items[0];
       if (pick) jumpTo(pick.getAttribute('data-vcid'));
