@@ -1593,6 +1593,30 @@
       flex-direction: column;
       gap: 16px;
     }
+    /* Video embeds (responsive 16:9) */
+    .vcVideo {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      margin: 12px 0;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #000;
+    }
+    .vcVideo iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+    .vcVideoCaption {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 700;
+      margin: 2px 0 0;
+    }
     /* Consent cards */
     .dsConsentGrid {
       display: grid;
@@ -3346,6 +3370,7 @@
 /* ===== Country toggle (US / Canada) on support page ===== */
 .countryToggle {
   display: inline-flex;
+  flex-wrap: wrap;
   background: rgba(255,255,255,.04);
   border: 1px solid rgba(209,254,255,.16);
   border-radius: 999px;
@@ -7187,6 +7212,65 @@ function triggerTransition(){
 }
 function reset(){ state.entry=null; state.scenario=null; state.emotion=null; state.path=null; state.history=[]; state.pathwayCompleted=false; state.visitedTools=[]; go("landing"); }
 
+/* ---- GoatCounter custom-event helper -------------------------------------
+   Fires one aggregate event to the SEPARATE vibe-events GoatCounter site so
+   it doesn't inflate the main site's page-visit counts. Same fire-and-forget
+   GET that count.js uses under the hood — no identifiers, no cookies. Shared
+   by the data-action click tracker below and by the standalone trackers
+   (Forge It button, support resource links). */
+const GC_EVENTS_ENDPOINT = "https://vibe-events.goatcounter.com/count";
+function gcEvent(evt, ttl){
+  try{
+    const url = GC_EVENTS_ENDPOINT
+      + "?p="   + encodeURIComponent(evt)
+      + "&t="   + encodeURIComponent((ttl || evt).slice(0, 100))
+      + "&e=true"
+      + "&rnd=" + Math.random().toString(36).slice(2);
+    new Image(1,1).src = url;
+    console.log("[gc] tracked:", evt);
+  }catch(err){ console.warn("[gc] tracking error:", err); }
+}
+
+/* ---- Dwell-time heartbeats -----------------------------------------------
+   Fires one aggregate event each time a visitor's *active* time on Vibe Check
+   crosses a milestone (30s, 1m, 3m, 5m, 10m). Read together in GoatCounter
+   these give a drop-off curve — e.g. how many people reach 5 minutes vs. just
+   30 seconds. Time only accrues while the tab is visible, so a forgotten
+   background tab doesn't inflate the numbers. Fully aggregate: no identifiers,
+   no cookies — the same kind of ping as every other gcEvent. */
+(function(){
+  var MILESTONES = [
+    { ms: 30000,  evt: "dwell-30s",   ttl: "Dwell: reached 30 seconds" },
+    { ms: 60000,  evt: "dwell-1min",  ttl: "Dwell: reached 1 minute" },
+    { ms: 180000, evt: "dwell-3min",  ttl: "Dwell: reached 3 minutes" },
+    { ms: 300000, evt: "dwell-5min",  ttl: "Dwell: reached 5 minutes" },
+    { ms: 600000, evt: "dwell-10min", ttl: "Dwell: reached 10 minutes" }
+  ];
+  var activeMs   = 0;
+  var lastTick   = Date.now();
+  var wasVisible = (document.visibilityState === "visible");
+  var nextIdx    = 0;
+  var timer      = null;
+
+  function settle(){
+    var now = Date.now();
+    // Credit the just-elapsed interval only if the tab was visible during it.
+    if (wasVisible) activeMs += now - lastTick;
+    lastTick   = now;
+    wasVisible = (document.visibilityState === "visible");
+    while (nextIdx < MILESTONES.length && activeMs >= MILESTONES[nextIdx].ms) {
+      gcEvent(MILESTONES[nextIdx].evt, MILESTONES[nextIdx].ttl);
+      nextIdx++;
+    }
+    if (nextIdx >= MILESTONES.length && timer) { clearInterval(timer); timer = null; }
+  }
+
+  // Poll every 5s (cheap; self-cancels once the last milestone fires) and also
+  // settle on every visibility change so background time is excluded cleanly.
+  timer = setInterval(settle, 5000);
+  document.addEventListener("visibilitychange", settle);
+})();
+
 document.addEventListener("click", (e)=>{
   /* data-action navigation buttons */
   const el = e.target.closest("[data-action]");
@@ -7238,18 +7322,42 @@ document.addEventListener("click", (e)=>{
         boundaryFlags:        { evt: "tool-boundary-flags-click",             ttl: "Tool: Boundary Flags Game clicked" },
         angerFunnel:          { evt: "tool-anger-funnel-click",               ttl: "Tool: The Anger Funnel clicked" },
         thoughtRecord:        { evt: "tool-thought-record-click",             ttl: "Tool: Thought Record clicked" },
-        rejection:            { evt: "tool-rejection-click",                  ttl: "Tool: Understanding Rejection clicked" }
+        rejection:            { evt: "tool-rejection-click",                  ttl: "Tool: Understanding Rejection clicked" },
+
+        // Scenario picker (topScenario) — "Which feels closest to what happened?"
+        s1:                   { evt: "scenario-freeze-click",                 ttl: "Scenario: They froze or got quiet clicked" },
+        s2:                   { evt: "scenario-pulled-away-click",            ttl: "Scenario: They pulled away clicked" },
+        s3:                   { evt: "scenario-drinking-click",               ttl: "Scenario: We were drinking or using substances clicked" },
+        s4:                   { evt: "scenario-not-sure-wanted-click",        ttl: "Scenario: I'm not sure they really wanted it clicked" },
+        s5:                   { evt: "scenario-upset-after-click",            ttl: "Scenario: They seemed upset or distant afterward clicked" },
+        s6:                   { evt: "scenario-not-sure-what-click",          ttl: "Scenario: I'm still not sure what happened clicked" },
+        s7:                   { evt: "scenario-pressure-click",               ttl: "Scenario: I kept persuading or pressuring them clicked" },
+        s8:                   { evt: "scenario-age-power-click",              ttl: "Scenario: There was an age or power difference clicked" },
+        s9:                   { evt: "scenario-digital-click",                ttl: "Scenario: Something happened digitally clicked" },
+        s10:                  { evt: "scenario-coercion-click",               ttl: "Scenario: I ignored a clear no clicked" },
+        s11:                  { evt: "scenario-relationship-click",           ttl: "Scenario: We were in a relationship and I assumed consent clicked" },
+        s12:                  { evt: "scenario-asleep-click",                 ttl: "Scenario: They were asleep or half-asleep clicked" },
+        s13:                  { evt: "scenario-escalation-click",             ttl: "Scenario: Things escalated beyond what was agreed clicked" },
+        s14:                  { evt: "scenario-regret-click",                 ttl: "Scenario: They said they regret what happened clicked" },
+        s15:                  { evt: "scenario-comment-joke-click",           ttl: "Scenario: I made a comment, joke, or remark clicked" },
+
+        // Emotion check-in — "What are you feeling right now?"
+        guilt:                { evt: "emotion-guilt-click",                   ttl: "Emotion: Guilt selected" },
+        defensive:            { evt: "emotion-defensive-click",               ttl: "Emotion: Defensive selected" },
+        confused:             { evt: "emotion-confused-click",                ttl: "Emotion: Confused / Unsure selected" },
+        ashamed:              { evt: "emotion-ashamed-click",                 ttl: "Emotion: Ashamed selected" },
+        anxious:              { evt: "emotion-anxious-click",                 ttl: "Emotion: Anxious / Panicking selected" },
+        angry:                { evt: "emotion-angry-click",                   ttl: "Emotion: Angry selected" },
+        numb:                 { evt: "emotion-numb-click",                    ttl: "Emotion: Numb / Shut Down selected" },
+        sad:                  { evt: "emotion-sad-click",                     ttl: "Emotion: Sad selected" },
+        embarrassed:          { evt: "emotion-embarrassed-click",             ttl: "Emotion: Embarrassed selected" },
+        okay:                 { evt: "emotion-okay-click",                    ttl: "Emotion: Okay / Alright selected" },
+        relieved:             { evt: "emotion-relieved-click",                ttl: "Emotion: Relieved selected" },
+        unsure:               { evt: "emotion-something-else-click",          ttl: "Emotion: Something else / not sure selected" }
       };
-      const GC_EVENTS_ENDPOINT = "https://vibe-events.goatcounter.com/count";
       if(Object.prototype.hasOwnProperty.call(GC_EVENTS, a)){
         const { evt, ttl } = GC_EVENTS[a];
-        const url = GC_EVENTS_ENDPOINT
-          + "?p="   + encodeURIComponent(evt)
-          + "&t="   + encodeURIComponent(ttl)
-          + "&e=true"
-          + "&rnd=" + Math.random().toString(36).slice(2);
-        new Image(1,1).src = url;
-        console.log("[gc] tracked:", evt);
+        gcEvent(evt, ttl);
       }
     }catch(err){ console.warn("[gc] tracking error:", err); }
     actions[a]?.();
@@ -19537,24 +19645,32 @@ if(state.emotion==="okay"){
     const supIntro = subPageIntro("support");
 
     // Region-specific support resources. SafeBAE is an online program so it's
-    // shown for both regions; the rest swap to country-appropriate hotlines.
+    // shown for all regions; the rest swap to country-appropriate hotlines.
     const supportResources = {
       US: [
-        { url:'https://learning.safebae.org/accountability-training-0', icon:'ph-graduation-cap', label:'SafeBAE Accountability Training', sub:'Structured program for behavior change' },
-        { url:'https://rainn.org/', icon:'ph-hands-praying', label:'RAINN', sub:'National sexual assault hotline &amp; resources' },
-        { url:'https://988lifeline.org/', icon:'ph-phone', label:'988 Lifeline', sub:'Call or text 988 for mental health crisis support' },
-        { url:'https://www.crisistextline.org/', icon:'ph-chat-circle-dots', label:'Crisis Text Line', sub:'Text HOME to 741741 for free crisis counseling' }
+        { url:'https://learning.safebae.org/accountability-training-0', icon:'ph-graduation-cap', label:'SafeBAE Accountability Training', sub:'Structured program for behavior change', gc:'support-safebae-training' },
+        { url:'https://rainn.org/', icon:'ph-hands-praying', label:'RAINN', sub:'National sexual assault hotline &amp; resources', gc:'support-rainn' },
+        { url:'https://988lifeline.org/', icon:'ph-phone', label:'988 Lifeline', sub:'Call or text 988 for mental health crisis support', gc:'support-988-lifeline-us' },
+        { url:'https://www.crisistextline.org/', icon:'ph-chat-circle-dots', label:'Crisis Text Line', sub:'Text HOME to 741741 for free crisis counseling', gc:'support-crisis-text-line' },
+        { url:'https://www.whatsok.org/', icon:'ph-question', label:'WhatsOK', sub:'A free helpline for youth to ask questions &amp; receive answers about safe sexuality', gc:'support-whatsok' }
       ],
       CA: [
-        { url:'https://learning.safebae.org/accountability-training-0', icon:'ph-graduation-cap', label:'SafeBAE Accountability Training', sub:'Structured program for behavior change' },
-        { url:'https://endingviolencecanada.org/sexual-assault-centres-crisis-lines-and-support-services/', icon:'ph-hands-praying', label:'Ending Violence Association of Canada', sub:'Directory of sexual assault centres &amp; crisis lines across Canada' },
-        { url:'https://988.ca/', icon:'ph-phone', label:'9-8-8 Suicide Crisis Helpline', sub:'Call or text 9-8-8 for free, 24/7 crisis support in English &amp; French' },
-        { url:'https://kidshelpphone.ca/', icon:'ph-chat-circle-dots', label:'Kids Help Phone', sub:'Text CONNECT to 686868 — free, 24/7 support (all ages welcome)' }
+        { url:'https://learning.safebae.org/accountability-training-0', icon:'ph-graduation-cap', label:'SafeBAE Accountability Training', sub:'Structured program for behavior change', gc:'support-safebae-training' },
+        { url:'https://endingviolencecanada.org/sexual-assault-centres-crisis-lines-and-support-services/', icon:'ph-hands-praying', label:'Ending Violence Association of Canada', sub:'Directory of sexual assault centres &amp; crisis lines across Canada', gc:'support-eva-canada' },
+        { url:'https://988.ca/', icon:'ph-phone', label:'9-8-8 Suicide Crisis Helpline', sub:'Call or text 9-8-8 for free, 24/7 crisis support in English &amp; French', gc:'support-988-helpline-ca' },
+        { url:'https://kidshelpphone.ca/', icon:'ph-chat-circle-dots', label:'Kids Help Phone', sub:'Text CONNECT to 686868 — free, 24/7 support (all ages welcome)', gc:'support-kids-help-phone' }
+      ],
+      UK: [
+        { url:'https://learning.safebae.org/accountability-training-0', icon:'ph-graduation-cap', label:'SafeBAE Accountability Training', sub:'Structured program for behavior change', gc:'support-safebae-training' },
+        { url:'https://rapecrisis.org.uk/', icon:'ph-hands-praying', label:'Rape Crisis England &amp; Wales', sub:'24/7 Rape &amp; Sexual Abuse Support Line — call 0808 500 2222', gc:'support-rape-crisis-ew' },
+        { url:'https://www.samaritans.org/', icon:'ph-phone', label:'Samaritans', sub:'Call 116 123 for free, 24/7 — for anything that’s upsetting you', gc:'support-samaritans' },
+        { url:'https://giveusashout.org/', icon:'ph-chat-circle-dots', label:'Shout', sub:'Text SHOUT to 85258 for free, 24/7 crisis support', gc:'support-shout' },
+        { url:'https://www.stopitnow.org.uk/inform-young-people/', icon:'ph-book-open', label:'Stop It Now — Inform Young People', sub:'Education &amp; support for young people involved in harmful online sexual behaviour', gc:'support-stop-it-now-uk' }
       ]
     };
 
     const renderSupportLinks = (country) => supportResources[country].map(r => `
-        <a class="supportLink" href="${r.url}" target="_blank" rel="noopener noreferrer">
+        <a class="supportLink" href="${r.url}" target="_blank" rel="noopener noreferrer" data-gc="${r.gc}" data-gc-ttl="Support: ${r.label} clicked">
           <span class="supportLinkIcon"><i class="ph-bold ${r.icon}"></i></span>
           <span class="supportLinkText">
             <span class="supportLinkLabel">${r.label}</span>
@@ -19568,7 +19684,7 @@ if(state.emotion==="okay"){
     let savedCountry = 'US';
     try {
       const s = sessionStorage.getItem('safebae:supportCountry');
-      if (s === 'US' || s === 'CA') savedCountry = s;
+      if (s === 'US' || s === 'CA' || s === 'UK') savedCountry = s;
     } catch(e){ /* ignore */ }
 
     screen.innerHTML = `<button class="btn btnBack" data-action="nextSteps">&#8592; Back</button>` + (supIntro ? personalNoteHtml(supIntro) : '') + card(
@@ -19581,6 +19697,7 @@ if(state.emotion==="okay"){
       `<div class="countryToggle" role="tablist" aria-label="Select country for support resources">
         <button class="countryToggleBtn ${savedCountry==='US'?'active':''}" data-country="US" type="button" role="tab" aria-selected="${savedCountry==='US'?'true':'false'}">United States</button>
         <button class="countryToggleBtn ${savedCountry==='CA'?'active':''}" data-country="CA" type="button" role="tab" aria-selected="${savedCountry==='CA'?'true':'false'}">Canada</button>
+        <button class="countryToggleBtn ${savedCountry==='UK'?'active':''}" data-country="UK" type="button" role="tab" aria-selected="${savedCountry==='UK'?'true':'false'}">United Kingdom</button>
       </div>
       <div id="supportLinksContainer" style="display:flex; flex-direction:column; gap:8px; margin-top:6px;">
         ${renderSupportLinks(savedCountry)}
@@ -19606,6 +19723,16 @@ if(state.emotion==="okay"){
         try { sessionStorage.setItem('safebae:supportCountry', country); } catch(e){ /* ignore */ }
       });
     });
+
+    // Track clicks on the support resource links. Delegated on the container
+    // so it keeps working after the country toggle re-renders the links
+    // (the toggle only swaps innerHTML — the container element persists).
+    if (linksContainer) {
+      linksContainer.addEventListener('click', (ev) => {
+        const link = ev.target.closest('a[data-gc]');
+        if (link) gcEvent(link.getAttribute('data-gc'), link.getAttribute('data-gc-ttl'));
+      });
+    }
 
     actions.nextSteps=()=>go("nextSteps");
     actions.closing=()=>go("closing");
@@ -19704,6 +19831,10 @@ if(state.emotion==="okay"){
       const text = forgeInput.value.trim();
       if(text.length < 5) return;
 
+      // Track that a commitment was forged (aggregate only — the text itself
+      // is never sent, it stays in the user's browser).
+      gcEvent("commitment-forged", "Closing: Commitment forged");
+
       // Show forged card
       cardText.textContent = '\u201C' + text + '\u201D';
       cardWrap.classList.add('show');
@@ -19766,7 +19897,6 @@ if(state.emotion==="okay"){
       `
       <div class="detailBody" style="font-size:13.5px; line-height:1.6; color:var(--muted);">
         <p><b style="color:var(--sb-light);">No personal data is collected.</b> Vibe Check does not ask for your name, email, location, or any identifying information.</p>
-        <p><b style="color:var(--sb-light);">Nothing is stored.</b> Your responses, reflections, and choices exist only in your browser while you’re using the tool. When you close the tab, everything is gone.</p>
         <p><b style="color:var(--sb-light);">Nothing is reported.</b> Vibe Check does not contact authorities, schools, employers, or anyone else. It is not a reporting tool.</p>
         <p><b style="color:var(--sb-light);">No personal data is sent anywhere.</b> There are no accounts, no cookies, and no server. Your responses and reflections stay in your browser. We use <a class="link" href="https://www.goatcounter.com" target="_blank" rel="noopener noreferrer">GoatCounter</a>, a privacy-friendly analytics tool, to count page visits — it does not track individuals, use cookies, or collect personal information.</p>
         <p><b style="color:var(--sb-light);">Nothing is sold.</b> Because we don’t collect identifying information in the first place, there is nothing personal to sell. But to be unambiguous: even if a buyer offered, the answer would be no. This is a permanent, line-in-the-sand commitment by SafeBAE.</p>
@@ -20424,6 +20554,10 @@ function dsRender(){
       </div>`).join('');
     innerHTML = `
       <div class="p">Sending intimate images has become normalized — but the risks are real. This isn't about judgment. It's about making informed choices. <b>#KnowB4UNude</b></div>
+      <div class="vcVideo">
+        <iframe src="https://www.youtube.com/embed/iNAVcRO22S0" title="SafeBAE — #KnowB4UNude PSA" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+      <div class="vcVideoCaption">▶ SafeBAE's #KnowB4UNude PSA — the risks, pressures, and realities of sharing intimate images.</div>
       <div class="dsConsentGrid">${cards}</div>
       <div class="dsNavRow">
         <button class="btn" data-dsaction="back">← Back</button>
@@ -20721,6 +20855,11 @@ function myRender() {
       </div>`).join('');
     innerHTML = `
       <div class="p">Bro-code isn't just locker room talk. It's a set of unspoken rules that shape what men do, what they stay silent about, and what they cover for.</div>
+      <div class="p" style="color:var(--muted);">SafeBAE co-founder Charlie Coleman saw this play out firsthand — his sister Daisy was assaulted by boys he considered friends. In this video, made with Teen Vogue, he breaks down the everyday attitudes that let sexual violence continue. <b>Bystander failure is participation.</b></div>
+      <div class="vcVideo">
+        <iframe src="https://www.youtube.com/embed/FsmycfJPWs4" title="Charlie Coleman, SafeBAE co-founder" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+      <div class="vcVideoCaption">▶ Charlie Coleman, SafeBAE co-founder · Contains discussion of sexual assault — it's okay to take a break.</div>
       <div class="dsStepList">${broItems}</div>
       <div class="mutedBox" style="margin-top:10px;">When you can't be vulnerable with other men, feelings don't disappear — they build up and come out as something else. The cycle looks like this: suppress it → low self-worth → stuck → trauma → consequences → back to suppressing it.</div>
       <div class="note" style="border-color:rgba(21,255,200,.4);">Real loyalty isn't protecting someone from consequences. It's caring enough to tell them the truth. Those aren't the same thing.</div>
@@ -20733,6 +20872,11 @@ function myRender() {
     innerHTML = `
       <div class="p" style="font-weight:800; font-size:15px; color:var(--sb-light);">Men get assaulted too. And it's handled badly.</div>
       <div class="p">The idea that men can't be victims — or that they secretly wanted it — isn't just wrong. It's the reason most male survivors never say anything.</div>
+      <div class="p" style="color:var(--muted);">Theo Hutt is a survivor, advocate, and SafeBAE board member. In this video he shares his own experience — and what it's been like navigating a world that doesn't always believe men can be survivors.</div>
+      <div class="vcVideo">
+        <iframe src="https://www.youtube.com/embed/J50PuImLUV4" title="Theo Hutt — Male Survivors of Sexual Assault" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+      <div class="vcVideoCaption">▶ Theo Hutt, SafeBAE board member · Contains discussion of sexual assault — it's okay to take a break.</div>
       <div class="dsStepList">
         <div class="dsStep">
           <div class="dsStepNum">1</div>
@@ -24516,6 +24660,35 @@ const VC_SEARCH_INDEX = {"landing": {"t": "Vibe Check — Home", "tag": "", "b":
     };
   }
 
+  // ---------- Support-page resource terms ----------
+  // The auto-generated index captures the Support Options screen at build
+  // time, so it misses resources added later (the UK list) and drops bare
+  // digits like phone numbers. Append a complete, explicit set of search
+  // terms for every resource on that page — US, Canada, and UK — so queries
+  // for an org name or hotline number land here.
+  if (VC_SEARCH_INDEX.support) {
+    VC_SEARCH_INDEX.support.b = (VC_SEARCH_INDEX.support.b || '') +
+      // SafeBAE (shown for all regions)
+      ' safebae accountability training behavior change program' +
+      // United States
+      ' united states us america rainn national sexual assault hotline 1-800-656-4673' +
+      ' 988 988lifeline suicide and crisis lifeline mental health crisis' +
+      ' crisis text line text home to 741741 crisis counseling' +
+      ' whatsok what is ok stop it now teens young adults questions about sexual thoughts feelings or behavior judgment-free chat text' +
+      // Canada
+      ' canada canadian ending violence association of canada sexual assault centres crisis lines directory' +
+      ' 988 9-8-8 suicide crisis helpline english french' +
+      ' kids help phone text connect to 686868 youth support' +
+      // United Kingdom
+      ' united kingdom uk britain british england wales scotland' +
+      ' rape crisis england and wales sexual abuse support line 0808 500 2222' +
+      ' samaritans call 116 123 someone to talk to anything upsetting you' +
+      ' shout text shout to 85258 crisis text service mental health' +
+      ' stop it now inform young people lucy faithfull harmful sexual behaviour online sexting indecent images education programme' +
+      // generic intent words
+      ' helpline hotline crisis line support line talk to someone get help where to get help';
+  }
+
   // ---------- Pathway-entry keywords ----------
   // When a query term matches a pathway entry's keywords, that screen gets
   // a heavy boost — so the *doorway* to a topic outranks the deeper pages.
@@ -24558,7 +24731,7 @@ const VC_SEARCH_INDEX = {"landing": {"t": "Vibe Check — Home", "tag": "", "b":
     'signalBoard':           ['signals','signal','reading','cues'],
     // Resource & repair pages
     'nextSteps':             ['resources','hotline','help','hotlines','rainn','988'],
-    'support':               ['support','therapist','counselor','counseling','therapy'],
+    'support':               ['support','therapist','counselor','counseling','therapy','rainn','samaritans','shout','988','helpline','hotline','whatsok'],
     'repair':                ['repair','apologize','apology','make','amends'],
     'closing':               ['finished','done','closing','complete','completed'],
     'shiftThinking':         ['shift','reframe','reframing'],
@@ -24998,213 +25171,48 @@ const VC_SEARCH_INDEX = {"landing": {"t": "Vibe Check — Home", "tag": "", "b":
   }
 
   // ==========================================================================
-  // SEARCH QUERY CAPTURE  (development / funder-demo instrumentation)
+  // SEARCH QUERY CAPTURE — fire each query to GoatCounter (search-vibe)
   // --------------------------------------------------------------------------
-  // Captures every search query the user types, after a brief debounce so we
-  // don't log mid-keystroke fragments. Three sinks, layered:
-  //
-  //   1. console.log  — visible live in DevTools while testing
-  //   2. window.VC_SEARCH_LOG — in-memory array, viewable via admin overlay
-  //   3. sendQueryExternal() — stubbed; uncomment + point at any endpoint to
-  //      send queries to GoatCounter, Plausible, a webhook, Google Sheets, etc.
-  //
-  // Open the admin overlay with  Ctrl/Cmd + Shift + S
+  // Debounced + de-duped. Normalized for aggregation: lowercase, collapse
+  // whitespace, length-cap. Same logical query ("Consent ", "consent",
+  // "CONSENT") collapses to one row in the GoatCounter dashboard.
   // ==========================================================================
-  window.VC_SEARCH_LOG = window.VC_SEARCH_LOG || [];
-
-  var _captureTimer = null;
+  var _captureTimer  = null;
   var _lastCapturedQ = '';
-  var CAPTURE_DEBOUNCE_MS = 700;   // wait for typing to settle
-  var CAPTURE_MIN_LENGTH  = 2;     // don't log 1-char fragments
+  var CAPTURE_DEBOUNCE_MS = 700;
+  var CAPTURE_MIN_LENGTH  = 2;
   var GC_SEARCH_ENDPOINT  = 'https://search-vibe.goatcounter.com/count';
-  var GC_MAX_TITLE_LEN    = 100;   // hard cap on what we send to GC
+  var GC_MAX_TITLE_LEN    = 100;
 
-  // Normalize for aggregation: lowercase, collapse whitespace, length-cap.
-  // Same logical query ("Consent ", "consent", "CONSENT") collapses to one
-  // row in the GoatCounter dashboard.
   function normalizeQuery(q){
-    return (q || '')
-      .trim()
-      .toLowerCase()
-      .replace(/\s+/g, ' ')
-      .slice(0, GC_MAX_TITLE_LEN);
+    return (q || '').trim().toLowerCase().replace(/\s+/g, ' ').slice(0, GC_MAX_TITLE_LEN);
+  }
+
+  function sendQueryToGoatCounter(normalizedQuery, resultCount){
+    try {
+      var title = 'Search: ' + normalizedQuery +
+                  ' (' + (resultCount == null ? '?' : resultCount) + ' results)';
+      var url = GC_SEARCH_ENDPOINT
+        + '?p='   + encodeURIComponent('search:' + normalizedQuery)
+        + '&t='   + encodeURIComponent(title.slice(0, GC_MAX_TITLE_LEN))
+        + '&e=true'
+        + '&rnd=' + Math.random().toString(36).slice(2);
+      new Image(1,1).src = url;
+    } catch(err){ /* fail silent */ }
   }
 
   function captureQuery(q, resultCount){
     var query = (q || '').trim();
     if (query.length < CAPTURE_MIN_LENGTH) return;
-    if (query === _lastCapturedQ) return; // de-dupe consecutive identical
+    if (query === _lastCapturedQ) return;
     _lastCapturedQ = query;
-
-    var record = {
-      ts: new Date().toISOString(),
-      query: query,
-      normalized: normalizeQuery(query),
-      results: (typeof resultCount === 'number') ? resultCount : null,
-      ua: navigator.userAgent.slice(0, 80),
-      ref: document.referrer || null,
-      sent: false
-    };
-    window.VC_SEARCH_LOG.push(record);
-    try { console.log('[VC search]', record.query, '→', record.results, 'results'); } catch(e){}
-
-    // Ship to GoatCounter (search-vibe). Fire-and-forget image pixel.
-    sendQueryExternal(record);
-
-    refreshAdminOverlayIfOpen();
+    sendQueryToGoatCounter(normalizeQuery(query), resultCount);
   }
 
   function scheduleCapture(q, resultCount){
     if (_captureTimer) clearTimeout(_captureTimer);
     _captureTimer = setTimeout(function(){ captureQuery(q, resultCount); }, CAPTURE_DEBOUNCE_MS);
   }
-
-  // ---- External send: GoatCounter event pixel ----
-  // Mirrors the pattern used by GC_EVENTS in the click-tracking handler:
-  //   p = grouping path (we use the normalized query so identical searches
-  //       stack up as one row in the dashboard)
-  //   t = display title shown in the dashboard
-  //   e = true (mark as event, not a pageview)
-  //   rnd = cache-buster so identical pixels actually fire each time
-  function sendQueryExternal(record){
-    try {
-      var title = 'Search: ' + record.normalized +
-                  ' (' + (record.results == null ? '?' : record.results) + ' results)';
-      var url = GC_SEARCH_ENDPOINT
-        + '?p='   + encodeURIComponent('search:' + record.normalized)
-        + '&t='   + encodeURIComponent(title.slice(0, GC_MAX_TITLE_LEN))
-        + '&e=true'
-        + '&rnd=' + Math.random().toString(36).slice(2);
-      var img = new Image(1,1);
-      img.onload  = function(){ record.sent = true;  refreshAdminOverlayIfOpen(); };
-      img.onerror = function(){ record.sent = false; refreshAdminOverlayIfOpen(); };
-      img.src = url;
-    } catch(err){ console.warn('[gc search] send error:', err); }
-  }
-
-  // ==========================================================================
-  // ADMIN OVERLAY — view / copy / download collected queries (dev only)
-  // Toggle: Ctrl/Cmd + Shift + S
-  // ==========================================================================
-  var _adminOverlay = null;
-
-  function buildAdminOverlay(){
-    if (_adminOverlay) return _adminOverlay;
-    var o = document.createElement('div');
-    o.id = 'vcSearchAdminOverlay';
-    o.style.cssText = [
-      'position:fixed','inset:auto 16px 16px auto','z-index:99999',
-      'width:min(420px, calc(100vw - 32px))','max-height:70vh',
-      'background:#0a131a','color:#D1FEFF',
-      'border:1px solid rgba(21,255,200,.35)',
-      'border-radius:14px','box-shadow:0 12px 40px rgba(0,0,0,.6)',
-      'font-family:-apple-system,system-ui,sans-serif','font-size:12px',
-      'display:flex','flex-direction:column','overflow:hidden'
-    ].join(';');
-    o.innerHTML =
-      '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(21,255,200,.05);">' +
-        '<div style="font-weight:900;letter-spacing:.05em;font-size:11px;text-transform:uppercase;color:#15FFC8;">Search Capture · Dev</div>' +
-        '<button id="vcAdminClose" style="appearance:none;background:none;border:none;color:#D1FEFF;cursor:pointer;font-size:18px;line-height:1;padding:2px 6px;">×</button>' +
-      '</div>' +
-      '<div id="vcAdminMeta" style="padding:8px 14px;font-size:11px;color:rgba(209,254,255,.7);border-bottom:1px solid rgba(255,255,255,.06);"></div>' +
-      '<div id="vcAdminList" style="flex:1;overflow:auto;padding:6px 0;"></div>' +
-      '<div style="display:flex;gap:6px;padding:10px 14px;border-top:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.3);">' +
-        '<button id="vcAdminCopy"     style="flex:1;appearance:none;background:rgba(21,255,200,.10);border:1px solid rgba(21,255,200,.35);color:#15FFC8;font-weight:800;padding:8px;border-radius:8px;cursor:pointer;font-size:11px;">Copy all</button>' +
-        '<button id="vcAdminDownload" style="flex:1;appearance:none;background:rgba(21,255,200,.10);border:1px solid rgba(21,255,200,.35);color:#15FFC8;font-weight:800;padding:8px;border-radius:8px;cursor:pointer;font-size:11px;">Download CSV</button>' +
-        '<button id="vcAdminClear"    style="flex:0 0 auto;appearance:none;background:rgba(255,120,120,.10);border:1px solid rgba(255,120,120,.35);color:#ff9999;font-weight:800;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:11px;">Clear</button>' +
-      '</div>';
-    document.body.appendChild(o);
-
-    o.querySelector('#vcAdminClose').addEventListener('click', closeAdminOverlay);
-    o.querySelector('#vcAdminCopy').addEventListener('click', function(){
-      var txt = window.VC_SEARCH_LOG.map(function(r){ return r.ts + '\t' + r.query + '\t' + r.results; }).join('\n');
-      try { navigator.clipboard.writeText(txt); this.textContent = 'Copied ✓'; var b = this; setTimeout(function(){ b.textContent = 'Copy all'; }, 1400); } catch(e){}
-    });
-    o.querySelector('#vcAdminDownload').addEventListener('click', function(){
-      var rows = [['timestamp','query','result_count','user_agent','referrer']];
-      window.VC_SEARCH_LOG.forEach(function(r){
-        rows.push([r.ts, '"' + (r.query || '').replace(/"/g,'""') + '"', r.results, '"' + (r.ua || '') + '"', '"' + (r.ref || '') + '"']);
-      });
-      var csv = rows.map(function(r){ return r.join(','); }).join('\n');
-      var blob = new Blob([csv], { type:'text/csv' });
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement('a');
-      a.href = url; a.download = 'vibe-check-search-queries-' + new Date().toISOString().slice(0,10) + '.csv';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    });
-    o.querySelector('#vcAdminClear').addEventListener('click', function(){
-      if (confirm('Clear all captured search queries from this session?')){
-        window.VC_SEARCH_LOG.length = 0;
-        _lastCapturedQ = '';
-        renderAdminOverlay();
-      }
-    });
-
-    _adminOverlay = o;
-    return o;
-  }
-
-  function renderAdminOverlay(){
-    if (!_adminOverlay) return;
-    var list = _adminOverlay.querySelector('#vcAdminList');
-    var meta = _adminOverlay.querySelector('#vcAdminMeta');
-    var log = window.VC_SEARCH_LOG;
-    var sentCount = 0;
-    for (var j = 0; j < log.length; j++){ if (log[j].sent) sentCount++; }
-    meta.innerHTML = log.length + ' quer' + (log.length === 1 ? 'y' : 'ies') + ' captured · ' +
-                     '<span style="color:rgba(21,255,200,.85);">' + sentCount + ' sent to GoatCounter</span>';
-    if (!log.length){
-      list.innerHTML = '<div style="padding:24px 14px;text-align:center;color:rgba(209,254,255,.4);font-size:11px;">No queries yet. Type in the search bar to capture.</div>';
-      return;
-    }
-    var html = '';
-    for (var i = log.length - 1; i >= 0; i--){
-      var r = log[i];
-      var time = r.ts.slice(11,19);
-      var rc = (r.results == null) ? '—' : r.results;
-      var sentDot = r.sent
-        ? '<span title="Sent to GoatCounter" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#15FFC8;box-shadow:0 0 6px rgba(21,255,200,.7);flex-shrink:0;"></span>'
-        : '<span title="Pending or failed" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.18);flex-shrink:0;"></span>';
-      html += '<div style="padding:8px 14px;border-bottom:1px solid rgba(255,255,255,.04);display:flex;gap:10px;align-items:center;">' +
-                sentDot +
-                '<span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:rgba(209,254,255,.45);flex-shrink:0;">' + time + '</span>' +
-                '<span style="flex:1;color:#D1FEFF;word-break:break-word;">' + r.query.replace(/</g,'&lt;') + '</span>' +
-                '<span style="font-size:10px;color:rgba(21,255,200,.7);flex-shrink:0;">' + rc + '</span>' +
-              '</div>';
-    }
-    list.innerHTML = html;
-  }
-
-  function refreshAdminOverlayIfOpen(){
-    if (_adminOverlay && _adminOverlay.style.display !== 'none') renderAdminOverlay();
-  }
-
-  function openAdminOverlay(){
-    buildAdminOverlay().style.display = 'flex';
-    renderAdminOverlay();
-  }
-  function closeAdminOverlay(){
-    if (_adminOverlay) _adminOverlay.style.display = 'none';
-  }
-  function toggleAdminOverlay(){
-    if (_adminOverlay && _adminOverlay.style.display !== 'none') closeAdminOverlay();
-    else openAdminOverlay();
-  }
-
-  document.addEventListener('keydown', function(e){
-    // Ctrl/Cmd + Shift + S
-    if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'S' || e.key === 's')){
-      e.preventDefault();
-      toggleAdminOverlay();
-    }
-  });
-
-  // Expose handy console helpers
-  window.VC_dumpSearches = function(){ console.table(window.VC_SEARCH_LOG); return window.VC_SEARCH_LOG; };
-  window.VC_openSearchAdmin = openAdminOverlay;
-
-  // ==========================================================================
 
   // Wrap render() so each input event also schedules a capture.
   var _origRender = render;
